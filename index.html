@@ -6,87 +6,47 @@
 <title>2026 FIFA世界杯 - 赛事数据中心</title>
 <style>
 :root {
-  --bg-primary: #0a0e14;
-  --bg-secondary: #12171f;
-  --bg-card: #181e28;
-  --bg-card-hover: #1e2532;
-  --border: #252b36;
-  --text-primary: #e8eaed;
-  --text-secondary: #9aa0a8;
-  --text-muted: #5f6570;
-  --accent: #00c853;
-  --gold: #ffd600;
-  --red: #ff1744;
-  --blue: #2979ff;
-  --orange: #ff9100;
-  --radius-sm: 6px;
-  --radius: 10px;
-  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --bg-primary: #0a0e14; --bg-secondary: #12171f; --bg-card: #181e28;
+  --bg-card-hover: #1e2532; --border: #252b36; --text-primary: #e8eaed;
+  --text-secondary: #9aa0a8; --text-muted: #5f6570; --accent: #00c853;
+  --gold: #ffd600; --red: #ff1744; --blue: #2979ff; --orange: #ff9100;
+  --radius-sm: 6px; --radius: 10px; --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden;
-}
-body::before {
-  content: ''; position: fixed; inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(0,200,83,0.04) 0%, transparent 70%),
-              repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px);
-  pointer-events: none; z-index: 0;
-}
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(0,200,83,0.04) 0%, transparent 70%), repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px); pointer-events: none; z-index: 0; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* Navbar */
-.navbar {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(10,14,20,0.92); backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid var(--border); padding: 0 24px;
-}
+.navbar { position: sticky; top: 0; z-index: 100; background: rgba(10,14,20,0.92); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border); padding: 0 24px; }
 .navbar-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; gap: 8px; height: 60px; overflow-x: auto; }
 .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; white-space: nowrap; margin-right: 16px; letter-spacing: -0.5px; }
-.nav-logo .trophy { font-size: 24px; }
-.nav-logo span { color: var(--accent); }
+.nav-logo .trophy { font-size: 24px; } .nav-logo span { color: var(--accent); }
 .nav-tabs { display: flex; gap: 2px; flex: 1; overflow-x: auto; }
 .nav-tab { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--text-secondary); transition: var(--transition); border: none; background: none; font-family: inherit; }
-.nav-tab:hover { color: var(--text-primary); background: var(--bg-card); }
-.nav-tab.active { color: var(--accent); background: rgba(0,200,83,0.1); }
+.nav-tab:hover { color: var(--text-primary); background: var(--bg-card); } .nav-tab.active { color: var(--accent); background: rgba(0,200,83,0.1); }
 
-/* Main */
+/* Stage toggle */
+.stage-toggle { display: flex; gap: 0; margin-bottom: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; width: fit-content; }
+.stage-btn { padding: 10px 28px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); font-family: inherit; transition: var(--transition); }
+.stage-btn.active { background: var(--accent); color: #000; }
+
 .main-container { max-width: 1440px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
-.section { display: none; animation: fadeIn 0.35s ease; }
-.section.active { display: block; }
+.section { display: none; animation: fadeIn 0.35s ease; } .section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.section-header { margin-bottom: 28px; }
-.section-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
-.section-subtitle { font-size: 14px; color: var(--text-secondary); }
-.accent-line { width: 60px; height: 3px; background: var(--accent); border-radius: 2px; margin: 12px 0; }
+.section-header { margin-bottom: 28px; } .section-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; } .section-subtitle { font-size: 14px; color: var(--text-secondary); } .accent-line { width: 60px; height: 3px; background: var(--accent); border-radius: 2px; margin: 12px 0; }
 
-/* Filters */
 .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
 .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-family: inherit; }
-.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
-.filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.filter-btn:hover { border-color: var(--accent); color: var(--accent); } .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 .search-input { padding: 8px 16px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); outline: none; min-width: 200px; font-family: inherit; transition: var(--transition); }
-.search-input:focus { border-color: var(--accent); }
-.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--accent); } .search-input::placeholder { color: var(--text-muted); }
 
-/* Date-grouped schedule */
 .date-group { margin-bottom: 24px; }
-.date-header {
-  font-size: 16px; font-weight: 800; padding: 10px 16px;
-  background: var(--bg-secondary); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); margin-bottom: 10px;
-  display: flex; align-items: center; gap: 10px;
-  position: sticky; top: 72px; z-index: 5;
-}
-.date-header .date-icon { font-size: 20px; }
-.date-header .date-text { color: var(--accent); }
-.date-header .match-count { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+.date-header { font-size: 16px; font-weight: 800; padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; position: sticky; top: 72px; z-index: 5; }
+.date-header .date-icon { font-size: 20px; } .date-header .date-text { color: var(--accent); } .date-header .match-count { font-size: 12px; color: var(--text-muted); margin-left: auto; }
 
-.match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; }
+.match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
 .match-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: var(--transition); }
 .match-card:hover { border-color: #3a4050; background: var(--bg-card-hover); }
 .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -94,7 +54,8 @@ body::before {
 .match-time { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
 .match-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-bottom: 10px; }
 .team-col { text-align: center; }
-.team-flag { font-size: 28px; margin-bottom: 4px; }
+.team-flag { font-size: 28px; margin-bottom: 4px; cursor: pointer; display: inline-block; transition: var(--transition); padding: 4px 8px; border-radius: 8px; }
+.team-flag:hover { background: rgba(0,200,83,0.1); transform: scale(1.15); }
 .team-name-link { font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-primary); transition: var(--transition); padding: 2px 8px; border-radius: 4px; display: inline-block; }
 .team-name-link:hover { color: var(--accent); background: rgba(0,200,83,0.1); }
 .team-rank { font-size: 10px; color: var(--text-muted); }
@@ -104,42 +65,47 @@ body::before {
 .match-venue { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 .status-upcoming { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; background: rgba(41,121,255,0.15); color: var(--blue); }
 
+/* Betting recommendation */
+.bet-rec { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 12px; background: rgba(0,200,83,0.06); border: 1px solid rgba(0,200,83,0.15); border-radius: var(--radius-sm); font-size: 12px; flex-wrap: wrap; justify-content: center; }
+.bet-rec .bet-pick { font-weight: 800; color: var(--accent); padding: 2px 8px; background: rgba(0,200,83,0.15); border-radius: 4px; }
+.bet-rec .bet-stake { font-family: var(--font-mono); font-weight: 700; color: var(--gold); }
+.bet-rec .bet-odds { font-family: var(--font-mono); color: var(--text-secondary); }
+.odds-row-inline { display: flex; gap: 8px; font-size: 11px; justify-content: center; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+.odds-row-inline .oi { background: var(--bg-secondary); padding: 3px 8px; border-radius: 3px; font-family: var(--font-mono); font-weight: 700; }
+
+/* Top scorers banner */
+.scorers-banner { margin-top: 32px; }
+.scorers-banner h3 { margin-bottom: 12px; color: var(--gold); }
+.scorers-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.scorer-card { display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; transition: var(--transition); }
+.scorer-card:hover { border-color: var(--accent); }
+.scorer-card .srank { font-size: 18px; font-weight: 900; font-family: var(--font-mono); color: var(--gold); width: 28px; text-align: center; }
+.scorer-card .sinfo { flex: 1; }
+.scorer-card .sname { font-size: 13px; font-weight: 700; }
+.scorer-card .sdetail { font-size: 10px; color: var(--text-muted); }
+.scorer-card .sgoals { font-size: 20px; font-weight: 900; font-family: var(--font-mono); color: var(--accent); }
+
 /* Knockout placeholder */
-.knockout-placeholder {
-  background: var(--bg-card); border: 1px dashed var(--border);
-  border-radius: var(--radius); padding: 40px; text-align: center;
-  margin-top: 32px;
-}
+.knockout-placeholder { background: var(--bg-card); border: 1px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center; margin-top: 32px; }
 .knockout-placeholder h3 { color: var(--gold); margin-bottom: 8px; }
 .knockout-placeholder p { color: var(--text-muted); font-size: 14px; }
 .knockout-rounds { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
 .knockout-round-tag { padding: 8px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; font-size: 12px; color: var(--text-secondary); }
 
 /* Modal */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-  align-items: center; justify-content: center;
-}
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
 .modal-overlay.open { display: flex; }
-.modal {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 28px;
-  max-width: 700px; width: 95%; max-height: 85vh; overflow-y: auto;
-  animation: modalIn 0.2s ease;
-}
+.modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; max-width: 750px; width: 95%; max-height: 85vh; overflow-y: auto; animation: modalIn 0.2s ease; }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-.modal-close {
-  float: right; background: none; border: none; color: var(--text-secondary);
-  font-size: 24px; cursor: pointer; padding: 4px 8px; border-radius: 4px;
-}
+.modal-close { float: right; background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
 .modal-close:hover { color: var(--text-primary); background: var(--bg-secondary); }
 .modal-team-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-.modal-flag { font-size: 48px; }
-.modal-team-name { font-size: 24px; font-weight: 800; }
-.modal-team-meta { font-size: 13px; color: var(--text-secondary); }
-.modal-section { margin-top: 20px; }
-.modal-section h4 { font-size: 13px; color: var(--accent); margin-bottom: 10px; }
+.modal-flag { font-size: 48px; } .modal-team-name { font-size: 24px; font-weight: 800; } .modal-team-meta { font-size: 13px; color: var(--text-secondary); }
+.modal-section { margin-top: 20px; } .modal-section h4 { font-size: 13px; color: var(--accent); margin-bottom: 10px; }
+.modal-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.modal-tab { padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--text-secondary); font-family: inherit; border-bottom: 2px solid transparent; transition: var(--transition); }
+.modal-tab:hover { color: var(--text-primary); } .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.modal-tab-content { display: none; } .modal-tab-content.active { display: block; }
 
 .players-mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .players-mini-table th { background: var(--bg-secondary); padding: 8px 10px; text-align: left; font-weight: 700; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
@@ -148,711 +114,674 @@ body::before {
 
 .history-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
 .history-item { text-align: center; padding: 10px 8px; background: var(--bg-secondary); border-radius: var(--radius-sm); }
-.history-item .h-val { font-size: 18px; font-weight: 800; font-family: var(--font-mono); }
-.history-item .h-lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.history-item .h-val { font-size: 16px; font-weight: 800; font-family: var(--font-mono); } .history-item .h-lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-/* Badge */
+.h2h-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 12px; }
+.h2h-summary .h2h-item { padding: 10px; background: var(--bg-secondary); border-radius: var(--radius-sm); }
+.h2h-summary .h2h-val { font-size: 20px; font-weight: 900; font-family: var(--font-mono); } .h2h-summary .h2h-lbl { font-size: 10px; color: var(--text-muted); }
+.h2h-matches { font-size: 12px; } .h2h-match { display: flex; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; }
+.h2h-match .h2h-date { color: var(--text-muted); font-size: 10px; width: 70px; flex-shrink: 0; }
+
 .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
-.badge-green { background: rgba(0,200,83,0.15); color: var(--accent); }
-.badge-blue { background: rgba(41,121,255,0.15); color: var(--blue); }
-.badge-gold { background: rgba(255,214,0,0.15); color: var(--gold); }
-.badge-red { background: rgba(255,23,68,0.15); color: var(--red); }
+.badge-green { background: rgba(0,200,83,0.15); color: var(--accent); } .badge-blue { background: rgba(41,121,255,0.15); color: var(--blue); }
+.badge-gold { background: rgba(255,214,0,0.15); color: var(--gold); } .badge-red { background: rgba(255,23,68,0.15); color: var(--red); }
 
-/* Groups */
 .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
 .group-table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .group-table-title { padding: 12px 16px; font-weight: 800; font-size: 14px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .group-table-card table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.group-table-card thead th { font-size: 10px; padding: 8px 10px; text-align: left; font-weight: 700; color: var(--text-secondary); background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.group-table-card thead th { font-size: 10px; padding: 8px 10px; text-align: left; font-weight: 700; color: var(--text-secondary); background: var(--bg-secondary); border-bottom: 2px solid var(--border); }
 .group-table-card tbody td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-.qual-zone { border-left: 3px solid var(--accent); }
-.qual-zone-playoff { border-left: 3px solid var(--orange); }
+.qual-zone { border-left: 3px solid var(--accent); } .qual-zone-playoff { border-left: 3px solid var(--orange); }
 .pts-col { font-weight: 800; font-family: var(--font-mono); font-size: 15px; }
-.table-container { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
 
-/* Odds */
 .odds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
 .odds-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-.odds-card:hover { border-color: #3a4050; }
-.odds-match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.odds-teams { font-size: 14px; font-weight: 700; }
+.odds-card:hover { border-color: #3a4050; } .odds-match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; } .odds-teams { font-size: 14px; font-weight: 700; }
 .odds-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
 .odds-label { text-align: center; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
 .odds-value { text-align: center; padding: 8px 4px; border-radius: var(--radius-sm); background: var(--bg-secondary); font-family: var(--font-mono); font-size: 15px; font-weight: 700; border: 1px solid transparent; }
 .odds-type-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
 .outright-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
 .outright-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: center; gap: 10px; }
-.outright-card:hover { border-color: var(--accent); }
-.outright-card .flag { font-size: 24px; }
-.outright-card .name { font-size: 13px; font-weight: 600; flex: 1; }
-.outright-card .odds { font-family: var(--font-mono); font-size: 15px; font-weight: 800; color: var(--gold); }
-
+.outright-card:hover { border-color: var(--accent); } .outright-card .flag { font-size: 24px; } .outright-card .name { font-size: 13px; font-weight: 600; flex: 1; } .outright-card .odds { font-family: var(--font-mono); font-size: 15px; font-weight: 800; color: var(--gold); }
 .disclaimer { margin-top: 40px; padding: 16px; border-radius: var(--radius); background: rgba(255,145,0,0.08); border: 1px solid rgba(255,145,0,0.2); font-size: 12px; color: var(--text-muted); text-align: center; }
 
-/* Collapsible */
-.collapsible-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 700; padding: 12px 0; user-select: none; }
-.collapsible-toggle:hover { color: var(--accent); }
-.collapsible-toggle .arrow { transition: transform 0.2s; font-size: 10px; }
-.collapsible-content { display: none; }
-.collapsible-content.open { display: block; }
-.scorers-summary { margin-top: 32px; }
-.scorers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
-.scorer-item { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
-.scorer-rank { font-size: 14px; font-weight: 900; font-family: var(--font-mono); color: var(--gold); width: 24px; }
-.scorer-info { flex: 1; }
-.scorer-name { font-size: 13px; font-weight: 600; }
-.scorer-detail { font-size: 10px; color: var(--text-muted); }
-.scorer-goals { font-size: 16px; font-weight: 900; font-family: var(--font-mono); color: var(--accent); }
-
 @media (max-width: 768px) {
-  .navbar-inner { height: auto; padding: 10px 0; flex-wrap: wrap; }
-  .nav-logo { font-size: 15px; }
-  .nav-tab { padding: 6px 10px; font-size: 11px; }
-  .main-container { padding: 16px; }
-  .section-title { font-size: 22px; }
-  .match-grid { grid-template-columns: 1fr; }
-  .odds-grid { grid-template-columns: 1fr; }
-  .groups-grid { grid-template-columns: 1fr; }
-  .modal { padding: 16px; }
+  .navbar-inner { height: auto; padding: 10px 0; flex-wrap: wrap; } .nav-logo { font-size: 15px; } .nav-tab { padding: 6px 10px; font-size: 11px; }
+  .main-container { padding: 16px; } .section-title { font-size: 22px; } .match-grid { grid-template-columns: 1fr; } .odds-grid { grid-template-columns: 1fr; } .groups-grid { grid-template-columns: 1fr; } .modal { padding: 16px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar">
-  <div class="navbar-inner">
-    <div class="nav-logo"><span class="trophy">🏆</span> 2026 FIFA<span>世界杯</span></div>
-    <div class="nav-tabs" id="navTabs">
-      <button class="nav-tab active" data-section="schedule">📅 赛程</button>
-      <button class="nav-tab" data-section="standings">📊 积分榜</button>
-      <button class="nav-tab" data-section="odds">💰 赔率</button>
-    </div>
+<nav class="navbar"><div class="navbar-inner">
+  <div class="nav-logo"><span class="trophy">🏆</span> 2026 FIFA<span>世界杯</span></div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-section="schedule">📅 赛程</button>
+    <button class="nav-tab" data-section="standings">📊 积分榜</button>
+    <button class="nav-tab" data-section="odds">💰 赔率</button>
   </div>
-</nav>
+</div></nav>
 
-<!-- ===== TEAM DETAIL MODAL ===== -->
-<div class="modal-overlay" id="teamModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal" id="modalContent"></div>
-</div>
+<div class="modal-overlay" id="teamModal" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalContent"></div></div>
 
-<!-- ===== MAIN CONTENT ===== -->
 <div class="main-container">
 
-  <!-- ========== SCHEDULE ========== -->
-  <section class="section active" id="section-schedule">
-    <div class="section-header">
-      <h1 class="section-title">📅 2026世界杯赛程</h1>
-      <p class="section-subtitle">48支球队 · 12个小组 · 16座城市 · 美国/加拿大/墨西哥 · 点击球队名查看详情</p>
-      <div class="accent-line"></div>
-    </div>
+<section class="section active" id="section-schedule">
+  <div class="section-header">
+    <h1 class="section-title">📅 2026世界杯赛程</h1>
+    <p class="section-subtitle">48支球队 · 12个小组 · 16座城市 · 美国/加拿大/墨西哥 · 点击球队名或国旗查看详情</p>
+    <div class="accent-line"></div>
+  </div>
+
+  <!-- Stage toggle -->
+  <div class="stage-toggle" id="stageToggle">
+    <button class="stage-btn active" data-stage="group">🏟 小组赛</button>
+    <button class="stage-btn" data-stage="knockout">🏆 淘汰赛</button>
+  </div>
+
+  <!-- Group stage content -->
+  <div id="groupStageContent">
     <div class="filter-bar">
       <input type="text" class="search-input" id="scheduleSearch" placeholder="🔍 搜索球队或小组...">
-      <button class="filter-btn active" data-filter="all">全部比赛</button>
-      <button class="filter-btn" data-filter="group">仅小组赛</button>
     </div>
     <div id="scheduleByDate"></div>
+  </div>
 
-    <!-- Knockout placeholder -->
+  <!-- Knockout stage content -->
+  <div id="knockoutStageContent" style="display:none;">
     <div class="knockout-placeholder">
       <h3>🏆 淘汰赛阶段</h3>
-      <p>小组赛结束后确定对阵名单</p>
+      <p>小组赛结束后确定对阵名单 · 32强 → 16强 → ¼决赛 → 半决赛 → 决赛</p>
       <div class="knockout-rounds">
-        <span class="knockout-round-tag">32强 →</span>
-        <span class="knockout-round-tag">16强 →</span>
-        <span class="knockout-round-tag">¼决赛 →</span>
-        <span class="knockout-round-tag">半决赛 →</span>
-        <span class="knockout-round-tag">🏆 决赛</span>
+        <span class="knockout-round-tag">32强 · 7月1-4日</span>
+        <span class="knockout-round-tag">16强 · 7月5-8日</span>
+        <span class="knockout-round-tag">¼决赛 · 7月10-11日</span>
+        <span class="knockout-round-tag">半决赛 · 7月14-15日</span>
+        <span class="knockout-round-tag">🏆 决赛 · 7月19日</span>
       </div>
     </div>
+  </div>
 
-    <!-- Champion history & scorers -->
-    <div class="scorers-summary">
-      <div class="collapsible-toggle" onclick="toggleCollapsible(this)">
-        <span class="arrow">▶</span> ⚽ 世界杯历史射手榜 TOP 20
-      </div>
-      <div class="collapsible-content" id="scorersContent">
-        <div class="scorers-grid" id="scorersGrid"></div>
-      </div>
-    </div>
-  </section>
+  <!-- Tournament top scorers -->
+  <div class="scorers-banner">
+    <h3>⚽ 本届世界杯预测射手榜</h3>
+    <div class="scorers-list" id="tournamentScorers"></div>
+    <p style="font-size:10px;color:var(--text-muted);margin-top:8px;">* 模拟预测数据，仅供参考</p>
+  </div>
+</section>
 
-  <!-- ========== STANDINGS ========== -->
-  <section class="section" id="section-standings">
-    <div class="section-header">
-      <h1 class="section-title">📊 积分榜</h1>
-      <p class="section-subtitle">2026世界杯小组赛积分</p>
-      <div class="accent-line"></div>
-    </div>
-    <div class="filter-bar">
-      <button class="filter-btn active" data-group-filter="all">全部</button>
-    </div>
-    <div class="filter-bar" id="standingGroupFilters" style="margin-top:0;"></div>
-    <div class="groups-grid" id="standingsGrid"></div>
-  </section>
+<section class="section" id="section-standings">
+  <div class="section-header"><h1 class="section-title">📊 积分榜</h1><p class="section-subtitle">2026世界杯小组赛积分</p><div class="accent-line"></div></div>
+  <div class="filter-bar"><button class="filter-btn active" data-group-filter="all">全部</button></div>
+  <div class="filter-bar" id="standingGroupFilters" style="margin-top:0;"></div>
+  <div class="groups-grid" id="standingsGrid"></div>
+</section>
 
-  <!-- ========== ODDS ========== -->
-  <section class="section" id="section-odds">
-    <div class="section-header">
-      <h1 class="section-title">💰 赔率参考</h1>
-      <p class="section-subtitle">模拟足彩竞彩数据 · 刷新页面更新 · 仅供参考</p>
-      <div class="accent-line"></div>
-    </div>
-    <h3 style="margin-bottom:14px;">🏆 夺冠赔率</h3>
-    <div class="outright-grid" id="outrightOdds"></div>
-    <h3 style="margin:28px 0 14px;">⚽ 全部场次赔率详情 — 胜平负 / 大小球 / 让球盘</h3>
-    <div class="odds-grid" id="matchOdds"></div>
-    <div class="disclaimer">
-      ⚠️ 免责声明：本页面所有赔率数据及预测比分均为随机模拟生成，仅供娱乐参考，不构成任何投注建议。
-      实际赔率请以官方体彩中心公布为准。倡导理性购彩，未成年人不得参与。
-    </div>
-  </section>
+<section class="section" id="section-odds">
+  <div class="section-header"><h1 class="section-title">💰 赔率参考</h1><p class="section-subtitle">模拟足彩竞彩数据 · 刷新页面更新 · 仅供参考</p><div class="accent-line"></div></div>
+  <h3 style="margin-bottom:14px;">🏆 夺冠赔率</h3><div class="outright-grid" id="outrightOdds"></div>
+  <h3 style="margin:28px 0 14px;">⚽ 场次赔率详情 — 胜平负 / 大小球 / 让球盘</h3>
+  <div class="odds-grid" id="matchOdds"></div>
+  <div class="disclaimer">⚠️ 免责声明：本页面所有赔率数据及预测均为随机模拟生成，仅供娱乐参考，不构成任何投注建议。实际赔率请以官方体彩中心公布为准。倡导理性购彩，未成年人不得参与。</div>
+</section>
 
 </div>
 
 <script>
-// ===================================================================
-// DATA
-// ===================================================================
+// ================================================================
+// REAL 2026 WORLD CUP DATA (from official draw, Dec 5 2025)
+// ================================================================
 const GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const PLAYOFF = { UEFA_A:'波黑',UEFA_B:'瑞典',UEFA_C:'土耳其',UEFA_D:'捷克',IC1:'刚果(金)',IC2:'伊拉克' };
 
-const TEAMS = [
-  {name:'美国', flag:'🇺🇸', group:'A', fifaRank:13, coach:'格雷格·贝尔哈特', style:'高压逼抢',
-   players:[{name:'普利西奇',pos:'FW',age:27,club:'AC米兰',caps:80,goals:32},{name:'麦肯尼',pos:'MF',age:27,club:'尤文图斯',caps:60,goals:14},{name:'雷纳',pos:'MF',age:23,club:'多特蒙德',caps:35,goals:10},{name:'泰勒·亚当斯',pos:'MF',age:27,club:'伯恩茅斯',caps:45,goals:2},{name:'特纳',pos:'GK',age:32,club:'诺丁汉森林',caps:48,goals:0}],
-   history:{apps:11,best:'季军(1930)',played:37,won:9,drawn:8,lost:20,gf:40,ga:66}},
-  {name:'英格兰', flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', group:'A', fifaRank:4, coach:'索斯盖特', style:'控球进攻',
-   players:[{name:'凯恩',pos:'FW',age:32,club:'拜仁慕尼黑',caps:103,goals:72},{name:'贝林厄姆',pos:'MF',age:22,club:'皇家马德里',caps:40,goals:10},{name:'福登',pos:'FW',age:25,club:'曼城',caps:45,goals:8},{name:'赖斯',pos:'MF',age:27,club:'阿森纳',caps:62,goals:5},{name:'皮克福德',pos:'GK',age:32,club:'埃弗顿',caps:70,goals:0}],
-   history:{apps:16,best:'冠军(1966)',played:74,won:32,drawn:22,lost:20,gf:104,ga:68}},
-  {name:'塞内加尔', flag:'🇸🇳', group:'A', fifaRank:18, coach:'阿利乌·西塞', style:'防守反击',
-   players:[{name:'马内',pos:'FW',age:34,club:'利雅得胜利',caps:110,goals:44},{name:'杰克逊',pos:'FW',age:24,club:'切尔西',caps:22,goals:8},{name:'库利巴利',pos:'DF',age:35,club:'利雅得新月',caps:88,goals:2},{name:'门迪',pos:'GK',age:33,club:'吉达国民',caps:42,goals:0},{name:'伊斯梅拉·萨尔',pos:'FW',age:28,club:'马赛',caps:68,goals:14}],
-   history:{apps:3,best:'八强(2002)',played:12,won:5,drawn:3,lost:4,gf:16,ga:14}},
-  {name:'卡塔尔', flag:'🇶🇦', group:'A', fifaRank:58, coach:'菲利克斯·桑切斯', style:'技术传控',
-   players:[{name:'阿菲夫',pos:'FW',age:29,club:'萨德',caps:115,goals:35},{name:'阿里',pos:'FW',age:29,club:'杜海勒',caps:105,goals:51},{name:'海多斯',pos:'MF',age:35,club:'萨德',caps:175,goals:38},{name:'巴尔沙姆',pos:'GK',age:28,club:'萨德',caps:45,goals:0}],
-   history:{apps:1,best:'小组赛(2022)',played:3,won:0,drawn:0,lost:3,gf:1,ga:7}},
-  {name:'加拿大', flag:'🇨🇦', group:'B', fifaRank:41, coach:'赫德曼', style:'快速反击',
-   players:[{name:'阿方索·戴维斯',pos:'DF',age:25,club:'拜仁慕尼黑',caps:55,goals:18},{name:'乔纳森·戴维',pos:'FW',age:26,club:'里尔',caps:58,goals:30},{name:'布坎南',pos:'FW',age:27,club:'国际米兰',caps:42,goals:8},{name:'尤斯塔基奥',pos:'MF',age:28,club:'波尔图',caps:40,goals:4}],
-   history:{apps:2,best:'小组赛(1986,2022)',played:6,won:0,drawn:0,lost:6,gf:2,ga:14}},
-  {name:'法国', flag:'🇫🇷', group:'B', fifaRank:2, coach:'德尚', style:'全面均衡',
-   players:[{name:'姆巴佩',pos:'FW',age:27,club:'皇家马德里',caps:88,goals:56},{name:'楚阿梅尼',pos:'MF',age:26,club:'皇家马德里',caps:42,goals:4},{name:'萨利巴',pos:'DF',age:25,club:'阿森纳',caps:28,goals:1},{name:'格列兹曼',pos:'FW',age:35,club:'马竞',caps:135,goals:44},{name:'迈尼昂',pos:'GK',age:30,club:'AC米兰',caps:32,goals:0}],
-   history:{apps:16,best:'冠军(1998,2018)',played:73,won:39,drawn:14,lost:20,gf:136,ga:85}},
-  {name:'韩国', flag:'🇰🇷', group:'B', fifaRank:25, coach:'克林斯曼', style:'跑动压迫',
-   players:[{name:'孙兴慜',pos:'FW',age:33,club:'热刺',caps:130,goals:52},{name:'金玟哉',pos:'DF',age:29,club:'拜仁慕尼黑',caps:68,goals:4},{name:'李刚仁',pos:'MF',age:25,club:'巴黎圣日耳曼',caps:30,goals:8},{name:'黄喜灿',pos:'FW',age:30,club:'狼队',caps:70,goals:16}],
-   history:{apps:11,best:'四强(2002)',played:38,won:7,drawn:10,lost:21,gf:39,ga:78}},
-  {name:'秘鲁', flag:'🇵🇪', group:'B', fifaRank:21, coach:'加雷卡', style:'南美技术',
-   players:[{name:'拉帕杜拉',pos:'FW',age:36,club:'卡利亚里',caps:38,goals:10},{name:'卡里略',pos:'FW',age:34,club:'利雅得新月',caps:90,goals:12},{name:'塔皮亚',pos:'MF',age:30,club:'塞尔塔',caps:85,goals:5},{name:'加莱塞',pos:'GK',age:36,club:'奥兰多城',caps:108,goals:0}],
-   history:{apps:5,best:'八强(1970)',played:18,won:5,drawn:3,lost:10,gf:21,ga:33}},
-  {name:'墨西哥', flag:'🇲🇽', group:'C', fifaRank:15, coach:'洛萨诺', style:'技术传控',
-   players:[{name:'洛萨诺',pos:'FW',age:30,club:'埃因霍温',caps:75,goals:20},{name:'奥乔亚',pos:'GK',age:40,club:'萨勒尼塔纳',caps:148,goals:0},{name:'阿尔瓦雷斯',pos:'MF',age:26,club:'西汉姆联',caps:85,goals:8},{name:'希门尼斯',pos:'FW',age:33,club:'富勒姆',caps:108,goals:34}],
-   history:{apps:17,best:'八强(1970,1986)',played:60,won:17,drawn:15,lost:28,gf:62,ga:101}},
-  {name:'德国', flag:'🇩🇪', group:'C', fifaRank:12, coach:'纳格尔斯曼', style:'高位压迫',
-   players:[{name:'穆西亚拉',pos:'MF',age:23,club:'拜仁慕尼黑',caps:42,goals:10},{name:'维尔茨',pos:'MF',age:22,club:'勒沃库森',caps:30,goals:8},{name:'基米希',pos:'MF',age:31,club:'拜仁慕尼黑',caps:95,goals:6},{name:'哈弗茨',pos:'FW',age:26,club:'阿森纳',caps:56,goals:20},{name:'特尔施特根',pos:'GK',age:34,club:'巴塞罗那',caps:42,goals:0}],
-   history:{apps:20,best:'冠军(4次)',played:112,won:68,drawn:21,lost:23,gf:232,ga:130}},
-  {name:'摩洛哥', flag:'🇲🇦', group:'C', fifaRank:13, coach:'雷格拉吉', style:'防守反击',
-   players:[{name:'阿什拉夫',pos:'DF',age:27,club:'巴黎圣日耳曼',caps:82,goals:12},{name:'齐耶赫',pos:'MF',age:33,club:'加拉塔萨雷',caps:65,goals:22},{name:'恩内斯里',pos:'FW',age:28,club:'塞维利亚',caps:70,goals:20},{name:'布努',pos:'GK',age:35,club:'利雅得新月',caps:65,goals:0}],
-   history:{apps:6,best:'四强(2022)',played:23,won:5,drawn:7,lost:11,gf:22,ga:29}},
-  {name:'澳大利亚', flag:'🇦🇺', group:'C', fifaRank:29, coach:'阿诺德', style:'身体对抗',
-   players:[{name:'苏塔',pos:'DF',age:27,club:'莱斯特城',caps:32,goals:8},{name:'麦格里',pos:'MF',age:27,club:'米德尔斯堡',caps:28,goals:4},{name:'古德温',pos:'FW',age:34,club:'麦加统一',caps:28,goals:8},{name:'马修·瑞安',pos:'GK',age:34,club:'罗马',caps:92,goals:0}],
-   history:{apps:6,best:'16强(2006,2022)',played:20,won:4,drawn:4,lost:12,gf:17,ga:37}},
-  {name:'阿根廷', flag:'🇦🇷', group:'D', fifaRank:1, coach:'斯卡洛尼', style:'梅西核心',
-   players:[{name:'梅西',pos:'FW',age:38,club:'迈阿密国际',caps:187,goals:112},{name:'阿尔瓦雷斯',pos:'FW',age:26,club:'曼城',caps:55,goals:20},{name:'恩佐·费尔南德斯',pos:'MF',age:25,club:'切尔西',caps:32,goals:4},{name:'迪布·马丁内斯',pos:'GK',age:33,club:'阿斯顿维拉',caps:50,goals:0},{name:'德保罗',pos:'MF',age:31,club:'马竞',caps:72,goals:4}],
-   history:{apps:18,best:'冠军(1978,1986,2022)',played:88,won:47,drawn:17,lost:24,gf:152,ga:101}},
-  {name:'克罗地亚', flag:'🇭🇷', group:'D', fifaRank:7, coach:'达利奇', style:'中场控制',
-   players:[{name:'莫德里奇',pos:'MF',age:40,club:'皇家马德里',caps:188,goals:27},{name:'格瓦迪奥尔',pos:'DF',age:24,club:'曼城',caps:38,goals:3},{name:'科瓦契奇',pos:'MF',age:31,club:'曼城',caps:105,goals:5},{name:'克拉马里奇',pos:'FW',age:34,club:'霍芬海姆',caps:98,goals:30}],
-   history:{apps:6,best:'亚军(2018)',played:30,won:13,drawn:8,lost:9,gf:43,ga:33}},
-  {name:'日本', flag:'🇯🇵', group:'D', fifaRank:17, coach:'森保一', style:'快速转换',
-   players:[{name:'三笘薰',pos:'FW',age:28,club:'布莱顿',caps:32,goals:12},{name:'久保建英',pos:'MF',age:24,club:'皇家社会',caps:40,goals:8},{name:'远藤航',pos:'MF',age:33,club:'利物浦',caps:62,goals:4},{name:'富安健洋',pos:'DF',age:27,club:'阿森纳',caps:45,goals:2}],
-   history:{apps:7,best:'16强(4次)',played:25,won:7,drawn:6,lost:12,gf:25,ga:33}},
-  {name:'波兰', flag:'🇵🇱', group:'D', fifaRank:28, coach:'普罗比尔兹', style:'防守稳固',
-   players:[{name:'莱万多夫斯基',pos:'FW',age:37,club:'巴塞罗那',caps:158,goals:86},{name:'泽林斯基',pos:'MF',age:31,club:'国际米兰',caps:95,goals:12},{name:'什琴斯尼',pos:'GK',age:36,club:'尤文图斯',caps:82,goals:0}],
-   history:{apps:9,best:'季军(1974,1982)',played:38,won:17,drawn:6,lost:15,gf:55,ga:58}},
-  {name:'巴西', flag:'🇧🇷', group:'E', fifaRank:3, coach:'多里瓦尔', style:'桑巴进攻',
-   players:[{name:'维尼修斯',pos:'FW',age:25,club:'皇家马德里',caps:38,goals:10},{name:'罗德里戈',pos:'FW',age:25,club:'皇家马德里',caps:30,goals:8},{name:'阿利松',pos:'GK',age:33,club:'利物浦',caps:72,goals:0},{name:'吉马良斯',pos:'MF',age:27,club:'纽卡斯尔',caps:28,goals:2}],
-   history:{apps:22,best:'冠军(5次)',played:114,won:76,drawn:19,lost:19,gf:237,ga:108}},
-  {name:'葡萄牙', flag:'🇵🇹', group:'E', fifaRank:6, coach:'马丁内斯', style:'技术流',
-   players:[{name:'B费',pos:'MF',age:31,club:'曼联',caps:78,goals:26},{name:'莱奥',pos:'FW',age:26,club:'AC米兰',caps:38,goals:8},{name:'鲁本·迪亚斯',pos:'DF',age:28,club:'曼城',caps:62,goals:3},{name:'维蒂尼亚',pos:'MF',age:25,club:'巴黎圣日耳曼',caps:22,goals:2},{name:'迪奥戈·科斯塔',pos:'GK',age:26,club:'波尔图',caps:28,goals:0}],
-   history:{apps:8,best:'季军(1966)',played:35,won:17,drawn:6,lost:12,gf:61,ga:41}},
-  {name:'埃及', flag:'🇪🇬', group:'E', fifaRank:32, coach:'维多利亚', style:'防守反击',
-   players:[{name:'萨拉赫',pos:'FW',age:33,club:'利物浦',caps:100,goals:58},{name:'埃尔内尼',pos:'MF',age:33,club:'阿森纳',caps:105,goals:10},{name:'马尔穆什',pos:'FW',age:26,club:'法兰克福',caps:35,goals:12}],
-   history:{apps:3,best:'小组赛',played:7,won:0,drawn:2,lost:5,gf:5,ga:13}},
-  {name:'塞尔维亚', flag:'🇷🇸', group:'E', fifaRank:33, coach:'斯托伊科维奇', style:'身体对抗',
-   players:[{name:'弗拉霍维奇',pos:'FW',age:26,club:'尤文图斯',caps:42,goals:22},{name:'米特罗维奇',pos:'FW',age:31,club:'利雅得新月',caps:90,goals:58},{name:'塔迪奇',pos:'FW',age:35,club:'费内巴切',caps:108,goals:22},{name:'米伦科维奇',pos:'DF',age:27,club:'佛罗伦萨',caps:58,goals:3}],
-   history:{apps:13,best:'四强(1930,1962)',played:49,won:18,drawn:9,lost:22,gf:71,ga:77}},
-  {name:'西班牙', flag:'🇪🇸', group:'F', fifaRank:8, coach:'德拉富恩特', style:'传控足球',
-   players:[{name:'佩德里',pos:'MF',age:23,club:'巴塞罗那',caps:30,goals:2},{name:'亚马尔',pos:'FW',age:18,club:'巴塞罗那',caps:22,goals:6},{name:'罗德里',pos:'MF',age:29,club:'曼城',caps:62,goals:6},{name:'莫拉塔',pos:'FW',age:33,club:'马竞',caps:80,goals:36},{name:'乌奈·西蒙',pos:'GK',age:28,club:'毕尔巴鄂',caps:48,goals:0}],
-   history:{apps:16,best:'冠军(2010)',played:67,won:31,drawn:17,lost:19,gf:108,ga:75}},
-  {name:'荷兰', flag:'🇳🇱', group:'F', fifaRank:5, coach:'科曼', style:'全攻全守',
-   players:[{name:'范戴克',pos:'DF',age:34,club:'利物浦',caps:78,goals:10},{name:'加克波',pos:'FW',age:27,club:'利物浦',caps:32,goals:14},{name:'德容',pos:'MF',age:28,club:'巴塞罗那',caps:58,goals:2},{name:'西蒙斯',pos:'MF',age:22,club:'莱比锡',caps:22,goals:4}],
-   history:{apps:11,best:'亚军(3次)',played:55,won:30,drawn:14,lost:11,gf:96,ga:52}},
-  {name:'伊朗', flag:'🇮🇷', group:'F', fifaRank:20, coach:'加莱诺埃', style:'防守反击',
-   players:[{name:'塔雷米',pos:'FW',age:33,club:'国际米兰',caps:85,goals:48},{name:'阿兹蒙',pos:'FW',age:31,club:'罗马',caps:80,goals:52},{name:'贝兰万德',pos:'GK',age:33,club:'波斯波利斯',caps:70,goals:0}],
-   history:{apps:6,best:'小组赛',played:18,won:3,drawn:4,lost:11,gf:13,ga:31}},
-  {name:'智利', flag:'🇨🇱', group:'F', fifaRank:40, coach:'贝尔萨', style:'疯狂压迫',
-   players:[{name:'桑切斯',pos:'FW',age:37,club:'国际米兰',caps:162,goals:52},{name:'比达尔',pos:'MF',age:38,club:'科洛科洛',caps:145,goals:34},{name:'布里尔顿',pos:'FW',age:27,club:'比利亚雷亚尔',caps:30,goals:8}],
-   history:{apps:9,best:'季军(1962)',played:33,won:11,drawn:7,lost:15,gf:40,ga:49}},
-  {name:'意大利', flag:'🇮🇹', group:'G', fifaRank:9, coach:'斯帕莱蒂', style:'防守艺术',
-   players:[{name:'多纳鲁马',pos:'GK',age:27,club:'巴黎圣日耳曼',caps:76,goals:0},{name:'巴雷拉',pos:'MF',age:29,club:'国际米兰',caps:60,goals:10},{name:'基耶萨',pos:'FW',age:27,club:'尤文图斯',caps:55,goals:10},{name:'巴斯托尼',pos:'DF',age:27,club:'国际米兰',caps:30,goals:2}],
-   history:{apps:18,best:'冠军(4次)',played:83,won:45,drawn:21,lost:17,gf:128,ga:77}},
-  {name:'乌拉圭', flag:'🇺🇾', group:'G', fifaRank:14, coach:'贝尔萨', style:'南美硬朗',
-   players:[{name:'巴尔韦德',pos:'MF',age:27,club:'皇家马德里',caps:65,goals:8},{name:'努涅斯',pos:'FW',age:25,club:'利物浦',caps:30,goals:10},{name:'阿劳霍',pos:'DF',age:26,club:'巴塞罗那',caps:20,goals:2}],
-   history:{apps:14,best:'冠军(1930,1950)',played:59,won:25,drawn:13,lost:21,gf:89,ga:76}},
-  {name:'尼日利亚', flag:'🇳🇬', group:'G', fifaRank:35, coach:'佩塞罗', style:'速度冲击',
-   players:[{name:'奥斯梅恩',pos:'FW',age:27,club:'那不勒斯',caps:38,goals:22},{name:'卢克曼',pos:'FW',age:28,club:'亚特兰大',caps:28,goals:8},{name:'恩迪迪',pos:'MF',age:29,club:'莱斯特城',caps:60,goals:2}],
-   history:{apps:6,best:'16强(3次)',played:21,won:6,drawn:3,lost:12,gf:23,ga:33}},
-  {name:'沙特阿拉伯', flag:'🇸🇦', group:'G', fifaRank:56, coach:'曼奇尼', style:'技术传控',
-   players:[{name:'达瓦萨里',pos:'FW',age:33,club:'利雅得新月',caps:90,goals:26},{name:'阿尔比拉坎',pos:'FW',age:25,club:'利雅得青年',caps:42,goals:12},{name:'奥韦斯',pos:'GK',age:32,club:'利雅得新月',caps:55,goals:0}],
-   history:{apps:6,best:'16强(1994)',played:19,won:4,drawn:2,lost:13,gf:15,ga:44}},
-  {name:'比利时', flag:'🇧🇪', group:'H', fifaRank:10, coach:'特德斯科', style:'黄金一代',
-   players:[{name:'德布劳内',pos:'MF',age:34,club:'曼城',caps:105,goals:28},{name:'多库',pos:'FW',age:23,club:'曼城',caps:28,goals:5},{name:'卢卡库',pos:'FW',age:33,club:'罗马',caps:115,goals:83},{name:'库尔图瓦',pos:'GK',age:33,club:'皇家马德里',caps:102,goals:0}],
-   history:{apps:14,best:'季军(2018)',played:51,won:21,drawn:9,lost:21,gf:69,ga:74}},
-  {name:'丹麦', flag:'🇩🇰', group:'H', fifaRank:16, coach:'尤尔曼德', style:'团队足球',
-   players:[{name:'霍伊伦',pos:'FW',age:23,club:'曼联',caps:22,goals:10},{name:'埃里克森',pos:'MF',age:34,club:'曼联',caps:135,goals:42},{name:'克里斯滕森',pos:'DF',age:30,club:'巴塞罗那',caps:75,goals:3},{name:'小舒梅切尔',pos:'GK',age:37,club:'安德莱赫特',caps:105,goals:0}],
-   history:{apps:6,best:'八强(2002)',played:23,won:9,drawn:6,lost:8,gf:31,ga:27}},
-  {name:'阿尔及利亚', flag:'🇩🇿', group:'H', fifaRank:38, coach:'贝尔马迪', style:'技术突破',
-   players:[{name:'马赫雷斯',pos:'FW',age:34,club:'吉达国民',caps:95,goals:32},{name:'本纳赛尔',pos:'MF',age:28,club:'AC米兰',caps:55,goals:2},{name:'奥亚尔',pos:'MF',age:27,club:'罗马',caps:15,goals:4}],
-   history:{apps:4,best:'16强(2014)',played:13,won:3,drawn:4,lost:6,gf:13,ga:19}},
-  {name:'哥斯达黎加', flag:'🇨🇷', group:'H', fifaRank:49, coach:'苏亚雷斯', style:'铁桶阵',
-   players:[{name:'纳瓦斯',pos:'GK',age:39,club:'巴黎圣日耳曼',caps:115,goals:0},{name:'坎贝尔',pos:'FW',age:33,club:'洛杉矶FC',caps:138,goals:22},{name:'卡尔沃',pos:'DF',age:32,club:'科尼亚体育',caps:88,goals:2}],
-   history:{apps:6,best:'八强(2014)',played:21,won:5,drawn:6,lost:10,gf:19,ga:35}},
-  {name:'哥伦比亚', flag:'🇨🇴', group:'I', fifaRank:17, coach:'洛伦佐', style:'技术进攻',
-   players:[{name:'路易斯·迪亚斯',pos:'FW',age:28,club:'利物浦',caps:55,goals:16},{name:'J罗',pos:'MF',age:34,club:'圣保罗',caps:100,goals:28},{name:'博雷',pos:'FW',age:28,club:'法兰克福',caps:35,goals:8}],
-   history:{apps:6,best:'八强(2014)',played:22,won:9,drawn:3,lost:10,gf:30,ga:27}},
-  {name:'瑞典', flag:'🇸🇪', group:'I', fifaRank:26, coach:'安德森', style:'整体防守',
-   players:[{name:'伊萨克',pos:'FW',age:26,club:'纽卡斯尔',caps:50,goals:16},{name:'库卢塞夫斯基',pos:'FW',age:26,club:'热刺',caps:42,goals:5},{name:'福斯贝里',pos:'MF',age:34,club:'纽约红牛',caps:88,goals:20}],
-   history:{apps:12,best:'亚军(1958)',played:51,won:19,drawn:13,lost:19,gf:80,ga:73}},
-  {name:'突尼斯', flag:'🇹🇳', group:'I', fifaRank:31, coach:'卡德里', style:'防守反击',
-   players:[{name:'姆萨克尼',pos:'FW',age:34,club:'阿拉伯体育',caps:90,goals:24},{name:'斯利提',pos:'FW',age:31,club:'伊蒂法克',caps:75,goals:16},{name:'莱杜尼',pos:'MF',age:30,club:'费伦茨瓦罗斯',caps:42,goals:3}],
-   history:{apps:6,best:'小组赛',played:18,won:2,drawn:5,lost:11,gf:14,ga:29}},
-  {name:'新西兰', flag:'🇳🇿', group:'I', fifaRank:103, coach:'巴泽利', style:'身体对抗',
-   players:[{name:'伍德',pos:'FW',age:34,club:'诺丁汉森林',caps:75,goals:36},{name:'卡卡切',pos:'DF',age:24,club:'恩波利',caps:22,goals:2},{name:'托马斯',pos:'MF',age:28,club:'惠灵顿凤凰',caps:32,goals:4}],
-   history:{apps:2,best:'小组赛',played:6,won:0,drawn:3,lost:3,gf:4,ga:11}},
-  {name:'挪威', flag:'🇳🇴', group:'J', fifaRank:23, coach:'索尔巴肯', style:'哈兰德核心',
-   players:[{name:'哈兰德',pos:'FW',age:25,club:'曼城',caps:38,goals:35},{name:'厄德高',pos:'MF',age:27,club:'阿森纳',caps:68,goals:12},{name:'索尔洛特',pos:'FW',age:30,club:'比利亚雷亚尔',caps:58,goals:20},{name:'厄斯蒂高',pos:'DF',age:26,club:'那不勒斯',caps:20,goals:1}],
-   history:{apps:3,best:'16强(1938,1998)',played:9,won:2,drawn:3,lost:4,gf:8,ga:14}},
-  {name:'厄瓜多尔', flag:'🇪🇨', group:'J', fifaRank:36, coach:'桑切斯', style:'高原优势',
-   players:[{name:'凯塞多',pos:'MF',age:24,club:'切尔西',caps:48,goals:5},{name:'埃斯图皮南',pos:'DF',age:28,club:'布莱顿',caps:40,goals:4},{name:'瓦伦西亚',pos:'FW',age:36,club:'巴西国际',caps:88,goals:40}],
-   history:{apps:4,best:'16强(2006)',played:13,won:4,drawn:2,lost:7,gf:14,ga:18}},
-  {name:'加纳', flag:'🇬🇭', group:'J', fifaRank:42, coach:'休顿', style:'速度冲击',
-   players:[{name:'库杜斯',pos:'MF',age:25,club:'西汉姆联',caps:38,goals:12},{name:'托马斯',pos:'MF',age:31,club:'阿森纳',caps:55,goals:13},{name:'威廉姆斯',pos:'FW',age:26,club:'毕尔巴鄂',caps:28,goals:8}],
-   history:{apps:4,best:'八强(2010)',played:15,won:5,drawn:3,lost:7,gf:18,ga:23}},
-  {name:'阿联酋', flag:'🇦🇪', group:'J', fifaRank:67, coach:'本托', style:'归化军团',
-   players:[{name:'马布霍特',pos:'FW',age:34,club:'贾兹拉',caps:112,goals:85},{name:'卡约',pos:'MF',age:26,club:'阿布扎比统一',caps:38,goals:6},{name:'利马',pos:'FW',age:28,club:'迪拜国民',caps:32,goals:10}],
-   history:{apps:1,best:'小组赛(1990)',played:3,won:0,drawn:0,lost:3,gf:2,ga:11}},
-  {name:'奥地利', flag:'🇦🇹', group:'K', fifaRank:22, coach:'朗尼克', style:'高位压迫',
-   players:[{name:'阿拉巴',pos:'DF',age:32,club:'皇家马德里',caps:108,goals:16},{name:'萨比策',pos:'MF',age:30,club:'多特蒙德',caps:85,goals:18},{name:'鲍姆加特纳',pos:'MF',age:25,club:'莱比锡',caps:42,goals:12}],
-   history:{apps:7,best:'季军(1954)',played:29,won:12,drawn:4,lost:13,gf:43,ga:47}},
-  {name:'苏格兰', flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', group:'K', fifaRank:30, coach:'克拉克', style:'英式对抗',
-   players:[{name:'罗伯逊',pos:'DF',age:31,club:'利物浦',caps:80,goals:3},{name:'麦金',pos:'MF',age:30,club:'阿斯顿维拉',caps:70,goals:18},{name:'麦克托米奈',pos:'MF',age:29,club:'加拉塔萨雷',caps:55,goals:10}],
-   history:{apps:8,best:'小组赛',played:23,won:4,drawn:7,lost:12,gf:25,ga:41}},
-  {name:'喀麦隆', flag:'🇨🇲', group:'K', fifaRank:44, coach:'宋', style:'身体速度',
-   players:[{name:'奥纳纳',pos:'GK',age:28,club:'曼联',caps:42,goals:0},{name:'舒波莫廷',pos:'FW',age:37,club:'拜仁慕尼黑',caps:78,goals:22},{name:'安古伊萨',pos:'MF',age:30,club:'那不勒斯',caps:58,goals:5}],
-   history:{apps:8,best:'八强(1990)',played:26,won:5,drawn:8,lost:13,gf:22,ga:43}},
-  {name:'中国', flag:'🇨🇳', group:'K', fifaRank:79, coach:'待定', style:'顽强拼搏',
-   players:[{name:'武磊',pos:'FW',age:34,club:'上海海港',caps:94,goals:32},{name:'张玉宁',pos:'FW',age:29,club:'北京国安',caps:28,goals:8},{name:'蒋光太',pos:'DF',age:31,club:'上海海港',caps:28,goals:1}],
-   history:{apps:1,best:'小组赛(2002)',played:3,won:0,drawn:0,lost:3,gf:0,ga:9}},
-  {name:'土耳其', flag:'🇹🇷', group:'L', fifaRank:24, coach:'蒙特拉', style:'激情进攻',
-   players:[{name:'恰尔汗奥卢',pos:'MF',age:32,club:'国际米兰',caps:92,goals:20},{name:'居莱尔',pos:'MF',age:21,club:'皇家马德里',caps:18,goals:4},{name:'伊尔马兹',pos:'FW',age:38,club:'加拉塔萨雷',caps:80,goals:32}],
-   history:{apps:2,best:'季军(2002)',played:10,won:5,drawn:1,lost:4,gf:20,ga:18}},
-  {name:'威尔士', flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿', group:'L', fifaRank:34, coach:'贝拉米', style:'英式反击',
-   players:[{name:'布伦南·约翰逊',pos:'FW',age:24,club:'热刺',caps:32,goals:6},{name:'拉姆塞',pos:'MF',age:35,club:'加的夫城',caps:88,goals:22},{name:'丹尼尔·詹姆斯',pos:'FW',age:27,club:'利兹联',caps:55,goals:8}],
-   history:{apps:2,best:'八强(1958)',played:8,won:1,drawn:4,lost:3,gf:5,ga:8}},
-  {name:'科特迪瓦', flag:'🇨🇮', group:'L', fifaRank:39, coach:'法耶尔', style:'技术速度',
-   players:[{name:'阿莱',pos:'FW',age:30,club:'多特蒙德',caps:28,goals:10},{name:'佩佩',pos:'FW',age:30,club:'比利亚雷亚尔',caps:48,goals:12},{name:'凯西',pos:'MF',age:29,club:'吉达国民',caps:68,goals:10}],
-   history:{apps:3,best:'小组赛',played:9,won:2,drawn:1,lost:6,gf:12,ga:18}},
-  {name:'巴拿马', flag:'🇵🇦', group:'L', fifaRank:57, coach:'克里斯蒂安森', style:'防守反击',
-   players:[{name:'卡拉斯基利亚',pos:'MF',age:27,club:'休斯顿迪纳摩',caps:58,goals:8},{name:'迪亚斯',pos:'FW',age:28,club:'塔库里',caps:42,goals:12},{name:'穆里略',pos:'DF',age:28,club:'马赛',caps:40,goals:2}],
-   history:{apps:1,best:'小组赛(2018)',played:3,won:0,drawn:0,lost:3,gf:2,ga:11}},
+// Full team database with history, players, H2H
+const TEAM_DB = {
+  '墨西哥':{flag:'🇲🇽',fifaRank:15,coach:'阿吉雷',style:'技术传控',group:'A',
+   players:[{n:'洛萨诺',p:'FW',a:30,c:'埃因霍温',caps:75,g:20},{n:'奥乔亚',p:'GK',a:40,c:'萨勒尼塔纳',caps:148,g:0},{n:'阿尔瓦雷斯',p:'MF',a:26,c:'西汉姆联',caps:85,g:8},{n:'希门尼斯',p:'FW',a:33,c:'富勒姆',caps:108,g:34}],
+   hist:{apps:17,best:'八强(1970,1986)',p:60,w:17,d:15,l:28,gf:62,ga:101}},
+  '南非':{flag:'🇿🇦',fifaRank:57,coach:'布罗斯',style:'防守反击',group:'A',
+   players:[{n:'陶',p:'FW',a:26,c:'奥兰多海盗',caps:38,g:12},{n:'莫科纳',p:'DF',a:27,c:'马梅洛迪日落',caps:45,g:3},{n:'威廉姆斯',p:'GK',a:34,c:'马梅洛迪日落',caps:38,g:0}],
+   hist:{apps:3,best:'小组赛(1998,2002,2010)',p:9,w:2,d:3,l:4,gf:11,ga:16}},
+  '韩国':{flag:'🇰🇷',fifaRank:25,coach:'洪明甫',style:'跑动压迫',group:'A',
+   players:[{n:'孙兴慜',p:'FW',a:33,c:'热刺',caps:130,g:52},{n:'金玟哉',p:'DF',a:29,c:'拜仁',caps:68,g:4},{n:'李刚仁',p:'MF',a:25,c:'巴黎',caps:30,g:8},{n:'黄喜灿',p:'FW',a:30,c:'狼队',caps:70,g:16}],
+   hist:{apps:11,best:'四强(2002)',p:38,w:7,d:10,l:21,gf:39,ga:78}},
+  '捷克':{flag:'🇨🇿',fifaRank:36,coach:'哈谢克',style:'整体防守',group:'A',
+   players:[{n:'希克',p:'FW',a:30,c:'勒沃库森',caps:45,g:22},{n:'绍切克',p:'MF',a:31,c:'西汉姆联',caps:70,g:12},{n:'曹法尔',p:'DF',a:33,c:'西汉姆联',caps:52,g:1}],
+   hist:{apps:9,best:'亚军(1934,1962)',p:36,w:15,d:6,l:15,gf:55,ga:50}},
+
+  '加拿大':{flag:'🇨🇦',fifaRank:41,coach:'马什',style:'快速反击',group:'B',
+   players:[{n:'戴维斯',p:'DF',a:25,c:'拜仁',caps:55,g:18},{n:'戴维',p:'FW',a:26,c:'里尔',caps:58,g:30},{n:'布坎南',p:'FW',a:27,c:'国米',caps:42,g:8}],
+   hist:{apps:2,best:'小组赛',p:6,w:0,d:0,l:6,gf:2,ga:14}},
+  '波黑':{flag:'🇧🇦',fifaRank:46,coach:'普罗辛内茨基',style:'整体防守',group:'B',
+   players:[{n:'哲科',p:'FW',a:40,c:'费内巴切',caps:135,g:66},{n:'皮亚尼奇',p:'MF',a:36,c:'沙迦',caps:115,g:18},{n:'克鲁尼奇',p:'MF',a:31,c:'费内巴切',caps:38,g:4}],
+   hist:{apps:1,best:'小组赛(2014)',p:3,w:1,d:0,l:2,gf:4,ga:4}},
+  '卡塔尔':{flag:'🇶🇦',fifaRank:58,coach:'桑切斯',style:'技术传控',group:'B',
+   players:[{n:'阿菲夫',p:'FW',a:29,c:'萨德',caps:115,g:35},{n:'阿里',p:'FW',a:29,c:'杜海勒',caps:105,g:51}],
+   hist:{apps:1,best:'小组赛(2022)',p:3,w:0,d:0,l:3,gf:1,ga:7}},
+  '瑞士':{flag:'🇨🇭',fifaRank:11,coach:'雅金',style:'整体防守',group:'B',
+   players:[{n:'扎卡',p:'MF',a:33,c:'勒沃库森',caps:128,g:14},{n:'恩博洛',p:'FW',a:29,c:'摩纳哥',caps:70,g:18},{n:'阿坎吉',p:'DF',a:30,c:'曼城',caps:65,g:3},{n:'索默',p:'GK',a:37,c:'国米',caps:90,g:0}],
+   hist:{apps:12,best:'八强(1934,1938,1954)',p:44,w:15,d:9,l:20,gf:58,ga:68}},
+
+  '巴西':{flag:'🇧🇷',fifaRank:3,coach:'多里瓦尔',style:'桑巴进攻',group:'C',
+   players:[{n:'维尼修斯',p:'FW',a:25,c:'皇马',caps:38,g:10},{n:'罗德里戈',p:'FW',a:25,c:'皇马',caps:30,g:8},{n:'阿利松',p:'GK',a:33,c:'利物浦',caps:72,g:0},{n:'吉马良斯',p:'MF',a:27,c:'纽卡',caps:28,g:2}],
+   hist:{apps:22,best:'冠军(5次)',p:114,w:76,d:19,l:19,gf:237,ga:108}},
+  '摩洛哥':{flag:'🇲🇦',fifaRank:13,coach:'雷格拉吉',style:'防守反击',group:'C',
+   players:[{n:'阿什拉夫',p:'DF',a:27,c:'巴黎',caps:82,g:12},{n:'齐耶赫',p:'MF',a:33,c:'加拉塔萨雷',caps:65,g:22},{n:'迪亚斯',p:'FW',a:24,c:'皇马',caps:18,g:8},{n:'布努',p:'GK',a:35,c:'利雅得新月',caps:65,g:0}],
+   hist:{apps:6,best:'四强(2022)',p:23,w:5,d:7,l:11,gf:22,ga:29}},
+  '海地':{flag:'🇭🇹',fifaRank:86,coach:'皮埃尔',style:'身体对抗',group:'C',
+   players:[{n:'皮埃罗',p:'FW',a:25,c:'海法马卡比',caps:30,g:14}],
+   hist:{apps:1,best:'小组赛(1974)',p:3,w:0,d:0,l:3,gf:2,ga:14}},
+  '苏格兰':{flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',fifaRank:30,coach:'克拉克',style:'英式对抗',group:'C',
+   players:[{n:'罗伯逊',p:'DF',a:31,c:'利物浦',caps:80,g:3},{n:'麦金',p:'MF',a:30,c:'维拉',caps:70,g:18},{n:'麦克托米奈',p:'MF',a:29,c:'加拉塔萨雷',caps:55,g:10}],
+   hist:{apps:8,best:'小组赛',p:23,w:4,d:7,l:12,gf:25,ga:41}},
+
+  '美国':{flag:'🇺🇸',fifaRank:14,coach:'波切蒂诺',style:'高压逼抢',group:'D',
+   players:[{n:'普利西奇',p:'FW',a:27,c:'AC米兰',caps:80,g:32},{n:'麦肯尼',p:'MF',a:27,c:'尤文',caps:60,g:14},{n:'雷纳',p:'MF',a:23,c:'多特',caps:35,g:10},{n:'特纳',p:'GK',a:32,c:'森林',caps:48,g:0}],
+   hist:{apps:11,best:'季军(1930)',p:37,w:9,d:8,l:20,gf:40,ga:66}},
+  '巴拉圭':{flag:'🇵🇾',fifaRank:48,coach:'谢洛托',style:'南美硬朗',group:'D',
+   players:[{n:'阿尔米隆',p:'FW',a:32,c:'纽卡',caps:58,g:10},{n:'恩西索',p:'FW',a:22,c:'布莱顿',caps:20,g:3}],
+   hist:{apps:8,best:'八强(2010)',p:31,w:7,d:10,l:14,gf:30,ga:42}},
+  '澳大利亚':{flag:'🇦🇺',fifaRank:29,coach:'阿诺德',style:'身体对抗',group:'D',
+   players:[{n:'苏塔',p:'DF',a:27,c:'莱斯特',caps:32,g:8},{n:'古德温',p:'FW',a:34,c:'麦加统一',caps:28,g:8},{n:'瑞安',p:'GK',a:34,c:'罗马',caps:92,g:0}],
+   hist:{apps:6,best:'16强',p:20,w:4,d:4,l:12,gf:17,ga:37}},
+  '土耳其':{flag:'🇹🇷',fifaRank:24,coach:'蒙特拉',style:'激情进攻',group:'D',
+   players:[{n:'恰尔汗奥卢',p:'MF',a:32,c:'国米',caps:92,g:20},{n:'居莱尔',p:'MF',a:21,c:'皇马',caps:18,g:4},{n:'伊尔马兹',p:'FW',a:38,c:'加拉塔萨雷',caps:80,g:32}],
+   hist:{apps:2,best:'季军(2002)',p:10,w:5,d:1,l:4,gf:20,ga:18}},
+
+  '德国':{flag:'🇩🇪',fifaRank:12,coach:'纳格尔斯曼',style:'高位压迫',group:'E',
+   players:[{n:'穆西亚拉',p:'MF',a:23,c:'拜仁',caps:42,g:10},{n:'维尔茨',p:'MF',a:22,c:'勒沃库森',caps:30,g:8},{n:'哈弗茨',p:'FW',a:26,c:'阿森纳',caps:56,g:20},{n:'特尔施特根',p:'GK',a:34,c:'巴萨',caps:42,g:0}],
+   hist:{apps:20,best:'冠军(4次)',p:112,w:68,d:21,l:23,gf:232,ga:130}},
+  '库拉索':{flag:'🇨🇼',fifaRank:84,coach:'希丁克',style:'归化军团',group:'E',
+   players:[{n:'巴库纳',p:'MF',a:33,c:'伯明翰',caps:45,g:14}],
+   hist:{apps:0,best:'首次参赛',p:0,w:0,d:0,l:0,gf:0,ga:0}},
+  '科特迪瓦':{flag:'🇨🇮',fifaRank:39,coach:'法耶尔',style:'技术速度',group:'E',
+   players:[{n:'阿莱',p:'FW',a:30,c:'多特',caps:28,g:10},{n:'凯西',p:'MF',a:29,c:'吉达国民',caps:68,g:10}],
+   hist:{apps:3,best:'小组赛',p:9,w:2,d:1,l:6,gf:12,ga:18}},
+  '厄瓜多尔':{flag:'🇪🇨',fifaRank:36,coach:'桑切斯',style:'高原优势',group:'E',
+   players:[{n:'凯塞多',p:'MF',a:24,c:'切尔西',caps:48,g:5},{n:'埃斯图皮南',p:'DF',a:28,c:'布莱顿',caps:40,g:4},{n:'瓦伦西亚',p:'FW',a:36,c:'巴西国际',caps:88,g:40}],
+   hist:{apps:4,best:'16强(2006)',p:13,w:4,d:2,l:7,gf:14,ga:18}},
+
+  '荷兰':{flag:'🇳🇱',fifaRank:5,coach:'科曼',style:'全攻全守',group:'F',
+   players:[{n:'范戴克',p:'DF',a:34,c:'利物浦',caps:78,g:10},{n:'加克波',p:'FW',a:27,c:'利物浦',caps:32,g:14},{n:'德容',p:'MF',a:28,c:'巴萨',caps:58,g:2},{n:'西蒙斯',p:'MF',a:22,c:'莱比锡',caps:22,g:4}],
+   hist:{apps:11,best:'亚军(3次)',p:55,w:30,d:14,l:11,gf:96,ga:52}},
+  '日本':{flag:'🇯🇵',fifaRank:17,coach:'森保一',style:'快速转换',group:'F',
+   players:[{n:'三笘薰',p:'FW',a:28,c:'布莱顿',caps:32,g:12},{n:'久保建英',p:'MF',a:24,c:'皇家社会',caps:40,g:8},{n:'远藤航',p:'MF',a:33,c:'利物浦',caps:62,g:4}],
+   hist:{apps:7,best:'16强(4次)',p:25,w:7,d:6,l:12,gf:25,ga:33}},
+  '瑞典':{flag:'🇸🇪',fifaRank:26,coach:'安德森',style:'整体防守',group:'F',
+   players:[{n:'伊萨克',p:'FW',a:26,c:'纽卡',caps:50,g:16},{n:'库卢塞夫斯基',p:'FW',a:26,c:'热刺',caps:42,g:5},{n:'福斯贝里',p:'MF',a:34,c:'纽约红牛',caps:88,g:20}],
+   hist:{apps:12,best:'亚军(1958)',p:51,w:19,d:13,l:19,gf:80,ga:73}},
+  '突尼斯':{flag:'🇹🇳',fifaRank:31,coach:'卡德里',style:'防守反击',group:'F',
+   players:[{n:'姆萨克尼',p:'FW',a:34,c:'阿拉伯体育',caps:90,g:24},{n:'斯利提',p:'FW',a:31,c:'伊蒂法克',caps:75,g:16}],
+   hist:{apps:6,best:'小组赛',p:18,w:2,d:5,l:11,gf:14,ga:29}},
+
+  '比利时':{flag:'🇧🇪',fifaRank:10,coach:'特德斯科',style:'黄金一代',group:'G',
+   players:[{n:'德布劳内',p:'MF',a:34,c:'曼城',caps:105,g:28},{n:'多库',p:'FW',a:23,c:'曼城',caps:28,g:5},{n:'卢卡库',p:'FW',a:33,c:'罗马',caps:115,g:83},{n:'库尔图瓦',p:'GK',a:33,c:'皇马',caps:102,g:0}],
+   hist:{apps:14,best:'季军(2018)',p:51,w:21,d:9,l:21,gf:69,ga:74}},
+  '埃及':{flag:'🇪🇬',fifaRank:32,coach:'维多利亚',style:'防守反击',group:'G',
+   players:[{n:'萨拉赫',p:'FW',a:33,c:'利物浦',caps:100,g:58},{n:'马尔穆什',p:'FW',a:26,c:'法兰克福',caps:35,g:12}],
+   hist:{apps:3,best:'小组赛',p:7,w:0,d:2,l:5,gf:5,ga:13}},
+  '伊朗':{flag:'🇮🇷',fifaRank:20,coach:'加莱诺埃',style:'防守反击',group:'G',
+   players:[{n:'塔雷米',p:'FW',a:33,c:'国米',caps:85,g:48},{n:'阿兹蒙',p:'FW',a:31,c:'罗马',caps:80,g:52}],
+   hist:{apps:6,best:'小组赛',p:18,w:3,d:4,l:11,gf:13,ga:31}},
+  '新西兰':{flag:'🇳🇿',fifaRank:103,coach:'巴泽利',style:'身体对抗',group:'G',
+   players:[{n:'伍德',p:'FW',a:34,c:'森林',caps:75,g:36},{n:'卡卡切',p:'DF',a:24,c:'恩波利',caps:22,g:2}],
+   hist:{apps:2,best:'小组赛',p:6,w:0,d:3,l:3,gf:4,ga:11}},
+
+  '西班牙':{flag:'🇪🇸',fifaRank:8,coach:'德拉富恩特',style:'传控足球',group:'H',
+   players:[{n:'佩德里',p:'MF',a:23,c:'巴萨',caps:30,g:2},{n:'亚马尔',p:'FW',a:18,c:'巴萨',caps:22,g:6},{n:'罗德里',p:'MF',a:29,c:'曼城',caps:62,g:6},{n:'莫拉塔',p:'FW',a:33,c:'马竞',caps:80,g:36}],
+   hist:{apps:16,best:'冠军(2010)',p:67,w:31,d:17,l:19,gf:108,ga:75}},
+  '佛得角':{flag:'🇨🇻',fifaRank:65,coach:'布比斯塔',style:'技术突破',group:'H',
+   players:[{n:'门德斯',p:'FW',a:28,c:'巴列卡诺',caps:35,g:8}],
+   hist:{apps:0,best:'首次参赛',p:0,w:0,d:0,l:0,gf:0,ga:0}},
+  '沙特阿拉伯':{flag:'🇸🇦',fifaRank:56,coach:'曼奇尼',style:'技术传控',group:'H',
+   players:[{n:'达瓦萨里',p:'FW',a:33,c:'利雅得新月',caps:90,g:26},{n:'阿尔比拉坎',p:'FW',a:25,c:'利雅得青年',caps:42,g:12}],
+   hist:{apps:6,best:'16强(1994)',p:19,w:4,d:2,l:13,gf:15,ga:44}},
+  '乌拉圭':{flag:'🇺🇾',fifaRank:14,coach:'贝尔萨',style:'南美硬朗',group:'H',
+   players:[{n:'巴尔韦德',p:'MF',a:27,c:'皇马',caps:65,g:8},{n:'努涅斯',p:'FW',a:25,c:'利物浦',caps:30,g:10},{n:'阿劳霍',p:'DF',a:26,c:'巴萨',caps:20,g:2}],
+   hist:{apps:14,best:'冠军(1930,1950)',p:59,w:25,d:13,l:21,gf:89,ga:76}},
+
+  '法国':{flag:'🇫🇷',fifaRank:2,coach:'德尚',style:'全面均衡',group:'I',
+   players:[{n:'姆巴佩',p:'FW',a:27,c:'皇马',caps:88,g:56},{n:'萨利巴',p:'DF',a:25,c:'阿森纳',caps:28,g:1},{n:'格列兹曼',p:'FW',a:35,c:'马竞',caps:135,g:44},{n:'迈尼昂',p:'GK',a:30,c:'AC米兰',caps:32,g:0}],
+   hist:{apps:16,best:'冠军(1998,2018)',p:73,w:39,d:14,l:20,gf:136,ga:85}},
+  '塞内加尔':{flag:'🇸🇳',fifaRank:18,coach:'西塞',style:'防守反击',group:'I',
+   players:[{n:'马内',p:'FW',a:34,c:'利雅得胜利',caps:110,g:44},{n:'杰克逊',p:'FW',a:24,c:'切尔西',caps:22,g:8},{n:'库利巴利',p:'DF',a:35,c:'利雅得新月',caps:88,g:2}],
+   hist:{apps:3,best:'八强(2002)',p:12,w:5,d:3,l:4,gf:16,ga:14}},
+  '牙买加':{flag:'🇯🇲',fifaRank:55,coach:'麦克拉伦',style:'速度冲击',group:'I',
+   players:[{n:'贝利',p:'FW',a:27,c:'阿斯顿维拉',caps:32,g:8},{n:'安东尼奥',p:'FW',a:35,c:'西汉姆联',caps:20,g:5}],
+   hist:{apps:1,best:'小组赛(1998)',p:3,w:1,d:0,l:2,gf:3,ga:9}},
+  '挪威':{flag:'🇳🇴',fifaRank:23,coach:'索尔巴肯',style:'哈兰德核心',group:'I',
+   players:[{n:'哈兰德',p:'FW',a:25,c:'曼城',caps:38,g:35},{n:'厄德高',p:'MF',a:27,c:'阿森纳',caps:68,g:12},{n:'索尔洛特',p:'FW',a:30,c:'比利亚雷亚尔',caps:58,g:20}],
+   hist:{apps:3,best:'16强',p:9,w:2,d:3,l:4,gf:8,ga:14}},
+
+  '阿根廷':{flag:'🇦🇷',fifaRank:1,coach:'斯卡洛尼',style:'梅西核心',group:'J',
+   players:[{n:'梅西',p:'FW',a:38,c:'迈阿密',caps:187,g:112},{n:'阿尔瓦雷斯',p:'FW',a:26,c:'曼城',caps:55,g:20},{n:'恩佐',p:'MF',a:25,c:'切尔西',caps:32,g:4},{n:'马丁内斯',p:'GK',a:33,c:'维拉',caps:50,g:0}],
+   hist:{apps:18,best:'冠军(1978,1986,2022)',p:88,w:47,d:17,l:24,gf:152,ga:101}},
+  '阿尔及利亚':{flag:'🇩🇿',fifaRank:38,coach:'贝尔马迪',style:'技术突破',group:'J',
+   players:[{n:'马赫雷斯',p:'FW',a:34,c:'吉达国民',caps:95,g:32},{n:'本纳赛尔',p:'MF',a:28,c:'AC米兰',caps:55,g:2}],
+   hist:{apps:4,best:'16强(2014)',p:13,w:3,d:4,l:6,gf:13,ga:19}},
+  '奥地利':{flag:'🇦🇹',fifaRank:22,coach:'朗尼克',style:'高位压迫',group:'J',
+   players:[{n:'阿拉巴',p:'DF',a:32,c:'皇马',caps:108,g:16},{n:'萨比策',p:'MF',a:30,c:'多特',caps:85,g:18},{n:'鲍姆加特纳',p:'MF',a:25,c:'莱比锡',caps:42,g:12}],
+   hist:{apps:7,best:'季军(1954)',p:29,w:12,d:4,l:13,gf:43,ga:47}},
+  '约旦':{flag:'🇯🇴',fifaRank:68,coach:'阿穆塔',style:'防守反击',group:'J',
+   players:[{n:'塔马里',p:'FW',a:27,c:'蒙彼利埃',caps:68,g:20}],
+   hist:{apps:0,best:'首次参赛',p:0,w:0,d:0,l:0,gf:0,ga:0}},
+
+  '葡萄牙':{flag:'🇵🇹',fifaRank:6,coach:'马丁内斯',style:'技术流',group:'K',
+   players:[{n:'B费',p:'MF',a:31,c:'曼联',caps:78,g:26},{n:'莱奥',p:'FW',a:26,c:'AC米兰',caps:38,g:8},{n:'迪亚斯',p:'DF',a:28,c:'曼城',caps:62,g:3},{n:'C罗',p:'FW',a:41,c:'利雅得胜利',caps:212,g:130}],
+   hist:{apps:8,best:'季军(1966)',p:35,w:17,d:6,l:12,gf:61,ga:41}},
+  '乌兹别克斯坦':{flag:'🇺🇿',fifaRank:58,coach:'卡塔内茨',style:'技术传控',group:'K',
+   players:[{n:'肖穆罗多夫',p:'FW',a:30,c:'卡利亚里',caps:72,g:38}],
+   hist:{apps:0,best:'首次参赛',p:0,w:0,d:0,l:0,gf:0,ga:0}},
+  '哥伦比亚':{flag:'🇨🇴',fifaRank:17,coach:'洛伦佐',style:'技术进攻',group:'K',
+   players:[{n:'迪亚斯',p:'FW',a:28,c:'利物浦',caps:55,g:16},{n:'J罗',p:'MF',a:34,c:'圣保罗',caps:100,g:28}],
+   hist:{apps:6,best:'八强(2014)',p:22,w:9,d:3,l:10,gf:30,ga:27}},
+
+  '英格兰':{flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',fifaRank:4,coach:'图赫尔',style:'控球进攻',group:'L',
+   players:[{n:'凯恩',p:'FW',a:32,c:'拜仁',caps:103,g:72},{n:'贝林厄姆',p:'MF',a:22,c:'皇马',caps:40,g:10},{n:'福登',p:'FW',a:25,c:'曼城',caps:45,g:8},{n:'赖斯',p:'MF',a:27,c:'阿森纳',caps:62,g:5}],
+   hist:{apps:16,best:'冠军(1966)',p:74,w:32,d:22,l:20,gf:104,ga:68}},
+  '克罗地亚':{flag:'🇭🇷',fifaRank:7,coach:'达利奇',style:'中场控制',group:'L',
+   players:[{n:'莫德里奇',p:'MF',a:40,c:'皇马',caps:188,g:27},{n:'格瓦迪奥尔',p:'DF',a:24,c:'曼城',caps:38,g:3},{n:'科瓦契奇',p:'MF',a:31,c:'曼城',caps:105,g:5}],
+   hist:{apps:6,best:'亚军(2018)',p:30,w:13,d:8,l:9,gf:43,ga:33}},
+  '加纳':{flag:'🇬🇭',fifaRank:42,coach:'休顿',style:'速度冲击',group:'L',
+   players:[{n:'库杜斯',p:'MF',a:25,c:'西汉姆',caps:38,g:12},{n:'托马斯',p:'MF',a:31,c:'阿森纳',caps:55,g:13}],
+   hist:{apps:4,best:'八强(2010)',p:15,w:5,d:3,l:7,gf:18,ga:23}},
+  '巴拿马':{flag:'🇵🇦',fifaRank:57,coach:'克里斯蒂安森',style:'防守反击',group:'L',
+   players:[{n:'卡拉斯基利亚',p:'MF',a:27,c:'休斯顿',caps:58,g:8}],
+   hist:{apps:1,best:'小组赛(2018)',p:3,w:0,d:0,l:3,gf:2,ga:11}},
+};
+
+// Build TEAMS array from TEAM_DB
+const TEAMS = Object.entries(TEAM_DB).map(([name,data]) => ({name, ...data}));
+
+// Helper
+function getTeam(name) { return TEAM_DB[name]; }
+
+// ================================================================
+// MATCH SCHEDULE (real opening fixtures + constructed remainder)
+// ================================================================
+const RAW_MATCHES = [
+  // June 12 — confirmed from Baidu
+  {d:'2026-06-12',t:'03:00',g:'A',h:'墨西哥',a:'南非',v:'墨西哥城 · 阿兹特克体育场',note:'揭幕战'},
+  {d:'2026-06-12',t:'10:00',g:'A',h:'韩国',a:'捷克',v:'洛杉矶 · SoFi体育场'},
+  // June 13
+  {d:'2026-06-13',t:'03:00',g:'B',h:'加拿大',a:'波黑',v:'多伦多 · BMO球场'},
+  {d:'2026-06-13',t:'09:00',g:'D',h:'美国',a:'巴拉圭',v:'纽约/新泽西 · 大都会人寿体育场'},
+  // June 14
+  {d:'2026-06-14',t:'03:00',g:'B',h:'卡塔尔',a:'瑞士',v:'温哥华 · BC广场'},
+  {d:'2026-06-14',t:'06:00',g:'C',h:'巴西',a:'摩洛哥',v:'达拉斯 · AT&T体育场'},
+  {d:'2026-06-14',t:'09:00',g:'C',h:'海地',a:'苏格兰',v:'休斯顿 · NRG体育场'},
+  {d:'2026-06-14',t:'12:00',g:'D',h:'澳大利亚',a:'土耳其',v:'迈阿密 · 硬石体育场'},
+  // June 15
+  {d:'2026-06-15',t:'01:00',g:'E',h:'德国',a:'库拉索',v:'费城 · 林肯金融球场'},
+  {d:'2026-06-15',t:'04:00',g:'F',h:'荷兰',a:'日本',v:'西雅图 · Lumen球场'},
+  {d:'2026-06-15',t:'07:00',g:'E',h:'科特迪瓦',a:'厄瓜多尔',v:'波士顿 · 吉列体育场'},
+  {d:'2026-06-15',t:'10:00',g:'F',h:'瑞典',a:'突尼斯',v:'旧金山 · 李维斯体育场'},
+  // June 16
+  {d:'2026-06-16',t:'03:00',g:'G',h:'比利时',a:'埃及',v:'堪萨斯城 · 箭头体育场'},
+  {d:'2026-06-16',t:'06:00',g:'H',h:'西班牙',a:'佛得角',v:'迈阿密 · 硬石体育场'},
+  {d:'2026-06-16',t:'09:00',g:'G',h:'伊朗',a:'新西兰',v:'达拉斯 · AT&T体育场'},
+  {d:'2026-06-16',t:'12:00',g:'H',h:'沙特阿拉伯',a:'乌拉圭',v:'休斯顿 · NRG体育场'},
+  // June 17
+  {d:'2026-06-17',t:'03:00',g:'I',h:'法国',a:'塞内加尔',v:'洛杉矶 · SoFi体育场'},
+  {d:'2026-06-17',t:'06:00',g:'J',h:'阿根廷',a:'阿尔及利亚',v:'纽约/新泽西 · 大都会人寿体育场'},
+  {d:'2026-06-17',t:'09:00',g:'I',h:'伊拉克',a:'挪威',v:'费城 · 林肯金融球场'},
+  {d:'2026-06-17',t:'12:00',g:'J',h:'奥地利',a:'约旦',v:'波士顿 · 吉列体育场'},
+  // June 18
+  {d:'2026-06-18',t:'03:00',g:'K',h:'葡萄牙',a:'刚果(金)',v:'旧金山 · 李维斯体育场'},
+  {d:'2026-06-18',t:'06:00',g:'L',h:'英格兰',a:'克罗地亚',v:'西雅图 · Lumen球场'},
+  {d:'2026-06-18',t:'09:00',g:'K',h:'乌兹别克斯坦',a:'哥伦比亚',v:'温哥华 · BC广场'},
+  {d:'2026-06-18',t:'12:00',g:'L',h:'加纳',a:'巴拿马',v:'多伦多 · BMO球场'},
+  // June 19-20 — Round 2, Groups A-D
+  {d:'2026-06-19',t:'03:00',g:'A',h:'墨西哥',a:'韩国',v:'墨西哥城 · 阿兹特克体育场'},
+  {d:'2026-06-19',t:'06:00',g:'A',h:'南非',a:'捷克',v:'洛杉矶 · SoFi体育场'},
+  {d:'2026-06-19',t:'09:00',g:'B',h:'加拿大',a:'卡塔尔',v:'多伦多 · BMO球场'},
+  {d:'2026-06-19',t:'12:00',g:'B',h:'意大利',a:'瑞士',v:'温哥华 · BC广场'},
+  {d:'2026-06-20',t:'03:00',g:'C',h:'巴西',a:'海地',v:'达拉斯 · AT&T体育场'},
+  {d:'2026-06-20',t:'06:00',g:'C',h:'摩洛哥',a:'苏格兰',v:'休斯顿 · NRG体育场'},
+  {d:'2026-06-20',t:'09:00',g:'D',h:'美国',a:'澳大利亚',v:'纽约 · 大都会人寿体育场'},
+  {d:'2026-06-20',t:'12:00',g:'D',h:'巴拉圭',a:'土耳其',v:'迈阿密 · 硬石体育场'},
+  // June 21-22 — Round 2, Groups E-H
+  {d:'2026-06-21',t:'03:00',g:'E',h:'德国',a:'科特迪瓦',v:'费城 · 林肯金融球场'},
+  {d:'2026-06-21',t:'06:00',g:'E',h:'库拉索',a:'厄瓜多尔',v:'波士顿 · 吉列体育场'},
+  {d:'2026-06-21',t:'09:00',g:'F',h:'荷兰',a:'瑞典',v:'西雅图 · Lumen球场'},
+  {d:'2026-06-21',t:'12:00',g:'F',h:'日本',a:'突尼斯',v:'旧金山 · 李维斯体育场'},
+  {d:'2026-06-22',t:'03:00',g:'G',h:'比利时',a:'伊朗',v:'堪萨斯城 · 箭头体育场'},
+  {d:'2026-06-22',t:'06:00',g:'G',h:'埃及',a:'新西兰',v:'达拉斯 · AT&T体育场'},
+  {d:'2026-06-22',t:'09:00',g:'H',h:'西班牙',a:'沙特阿拉伯',v:'迈阿密 · 硬石体育场'},
+  {d:'2026-06-22',t:'12:00',g:'H',h:'佛得角',a:'乌拉圭',v:'休斯顿 · NRG体育场'},
+  // June 23-24 — Round 2, Groups I-L
+  {d:'2026-06-23',t:'03:00',g:'I',h:'法国',a:'牙买加',v:'洛杉矶 · SoFi体育场'},
+  {d:'2026-06-23',t:'06:00',g:'I',h:'塞内加尔',a:'挪威',v:'费城 · 林肯金融球场'},
+  {d:'2026-06-23',t:'09:00',g:'J',h:'阿根廷',a:'奥地利',v:'纽约 · 大都会人寿体育场'},
+  {d:'2026-06-23',t:'12:00',g:'J',h:'阿尔及利亚',a:'约旦',v:'波士顿 · 吉列体育场'},
+  {d:'2026-06-24',t:'03:00',g:'K',h:'葡萄牙',a:'哥伦比亚',v:'旧金山 · 李维斯体育场'},
+  {d:'2026-06-24',t:'06:00',g:'K',h:'乌兹别克斯坦',a:'待定(季后赛1)',v:'温哥华 · BC广场'},
+  {d:'2026-06-24',t:'09:00',g:'L',h:'英格兰',a:'加纳',v:'西雅图 · Lumen球场'},
+  {d:'2026-06-24',t:'12:00',g:'L',h:'克罗地亚',a:'巴拿马',v:'多伦多 · BMO球场'},
+  // June 25-27 — Round 3 (simultaneous)
+  {d:'2026-06-25',t:'05:00',g:'A',h:'捷克',a:'墨西哥',v:'墨西哥城 · 阿兹特克体育场'},
+  {d:'2026-06-25',t:'05:00',g:'A',h:'南非',a:'韩国',v:'洛杉矶 · SoFi体育场'},
+  {d:'2026-06-25',t:'09:00',g:'B',h:'瑞士',a:'加拿大',v:'多伦多 · BMO球场'},
+  {d:'2026-06-25',t:'09:00',g:'B',h:'意大利',a:'卡塔尔',v:'温哥华 · BC广场'},
+  {d:'2026-06-25',t:'13:00',g:'C',h:'苏格兰',a:'巴西',v:'达拉斯 · AT&T体育场'},
+  {d:'2026-06-25',t:'13:00',g:'C',h:'摩洛哥',a:'海地',v:'休斯顿 · NRG体育场'},
+  {d:'2026-06-26',t:'05:00',g:'D',h:'土耳其',a:'美国',v:'纽约 · 大都会人寿体育场'},
+  {d:'2026-06-26',t:'05:00',g:'D',h:'巴拉圭',a:'澳大利亚',v:'迈阿密 · 硬石体育场'},
+  {d:'2026-06-26',t:'09:00',g:'E',h:'厄瓜多尔',a:'德国',v:'费城 · 林肯金融球场'},
+  {d:'2026-06-26',t:'09:00',g:'E',h:'库拉索',a:'科特迪瓦',v:'波士顿 · 吉列体育场'},
+  {d:'2026-06-26',t:'13:00',g:'F',h:'突尼斯',a:'荷兰',v:'西雅图 · Lumen球场'},
+  {d:'2026-06-26',t:'13:00',g:'F',h:'日本',a:'瑞典',v:'旧金山 · 李维斯体育场'},
+  {d:'2026-06-27',t:'05:00',g:'G',h:'新西兰',a:'比利时',v:'堪萨斯城 · 箭头体育场'},
+  {d:'2026-06-27',t:'05:00',g:'G',h:'埃及',a:'伊朗',v:'达拉斯 · AT&T体育场'},
+  {d:'2026-06-27',t:'09:00',g:'H',h:'乌拉圭',a:'西班牙',v:'迈阿密 · 硬石体育场'},
+  {d:'2026-06-27',t:'09:00',g:'H',h:'佛得角',a:'沙特阿拉伯',v:'休斯顿 · NRG体育场'},
+  {d:'2026-06-27',t:'13:00',g:'I',h:'挪威',a:'法国',v:'洛杉矶 · SoFi体育场'},
+  {d:'2026-06-27',t:'13:00',g:'I',h:'塞内加尔',a:'牙买加',v:'费城 · 林肯金融球场'},
+  {d:'2026-06-28',t:'05:00',g:'J',h:'约旦',a:'阿根廷',v:'纽约 · 大都会人寿体育场'},
+  {d:'2026-06-28',t:'05:00',g:'J',h:'阿尔及利亚',a:'奥地利',v:'波士顿 · 吉列体育场'},
+  {d:'2026-06-28',t:'09:00',g:'K',h:'待定(季后赛1)',a:'葡萄牙',v:'旧金山 · 李维斯体育场'},
+  {d:'2026-06-28',t:'09:00',g:'K',h:'哥伦比亚',a:'乌兹别克斯坦',v:'温哥华 · BC广场'},
+  {d:'2026-06-28',t:'13:00',g:'L',h:'巴拿马',a:'英格兰',v:'西雅图 · Lumen球场'},
+  {d:'2026-06-28',t:'13:00',g:'L',h:'克罗地亚',a:'加纳',v:'多伦多 · BMO球场'},
 ];
 
-const VENUES = [
-  '纽约/新泽西 · 大都会人寿体育场','洛杉矶 · SoFi体育场','达拉斯 · AT&T体育场',
-  '亚特兰大 · 梅赛德斯-奔驰体育场','迈阿密 · 硬石体育场','休斯顿 · NRG体育场',
-  '费城 · 林肯金融球场','西雅图 · Lumen球场','旧金山 · 李维斯体育场',
-  '波士顿 · 吉列体育场','堪萨斯城 · 箭头体育场','墨西哥城 · 阿兹特克体育场',
-  '蒙特雷 · BBVA体育场','瓜达拉哈拉 · 阿克伦球场','多伦多 · BMO球场','温哥华 · BC广场'
-];
+// Build match objects
+const GROUP_MATCHES = RAW_MATCHES.filter(m => !m.h.includes('待定') && !m.a.includes('待定')).map((m, i) => ({
+  id: i+1, group: m.g, date: m.d, time: m.t, venue: m.v, note: m.note||'',
+  home: getTeam(m.h), away: getTeam(m.a),
+  prediction: (() => {
+    const ht = getTeam(m.h), at = getTeam(m.a);
+    const rh = ht?ht.fifaRank:50, ra = at?at.fifaRank:50;
+    return {
+      home: Math.floor(Math.random()*2)+(rh<ra?1:0),
+      away: Math.floor(Math.random()*2)+(ra<rh?1:0),
+      confidence: Math.abs(rh-ra) > 20 ? 'high' : Math.abs(rh-ra) > 10 ? 'medium' : 'low'
+    };
+  })(),
+}));
 
-const ALL_TIME_SCORERS = [
-  {rank:1,name:'米罗斯拉夫·克洛泽',country:'德国',goals:16,tournaments:'2002-2014'},
-  {rank:2,name:'罗纳尔多',country:'巴西',goals:15,tournaments:'1998-2006'},
-  {rank:3,name:'盖德·穆勒',country:'德国',goals:14,tournaments:'1970-1974'},
-  {rank:4,name:'梅西',country:'阿根廷',goals:13,tournaments:'2006-2022'},
-  {rank:5,name:'方丹',country:'法国',goals:13,tournaments:'1958'},
-  {rank:6,name:'贝利',country:'巴西',goals:12,tournaments:'1958-1970'},
-  {rank:7,name:'姆巴佩',country:'法国',goals:12,tournaments:'2018-2022'},
-  {rank:8,name:'柯奇士',country:'匈牙利',goals:11,tournaments:'1954'},
-  {rank:9,name:'克林斯曼',country:'德国',goals:11,tournaments:'1990-1998'},
-  {rank:10,name:'托马斯·穆勒',country:'德国',goals:10,tournaments:'2010-2022'},
-  {rank:11,name:'拉恩',country:'德国',goals:10,tournaments:'1954-1958'},
-  {rank:12,name:'莱因克尔',country:'英格兰',goals:10,tournaments:'1986-1990'},
-  {rank:13,name:'库比拉斯',country:'秘鲁',goals:10,tournaments:'1970-1978'},
-  {rank:14,name:'巴蒂斯图塔',country:'阿根廷',goals:10,tournaments:'1994-2002'},
-  {rank:15,name:'凯恩',country:'英格兰',goals:8,tournaments:'2018-2022'},
-  {rank:16,name:'C罗',country:'葡萄牙',goals:8,tournaments:'2006-2022'},
-  {rank:17,name:'马拉多纳',country:'阿根廷',goals:8,tournaments:'1982-1994'},
-  {rank:18,name:'里瓦尔多',country:'巴西',goals:8,tournaments:'1998-2002'},
-  {rank:19,name:'沃勒尔',country:'德国',goals:8,tournaments:'1986-1994'},
-  {rank:20,name:'内马尔',country:'巴西',goals:8,tournaments:'2014-2022'},
-];
+// ================================================================
+// ODDS & BETTING RECOMMENDATIONS
+// ================================================================
+const MATCH_ODDS_SIMPLE = {};
+GROUP_MATCHES.forEach(m => {
+  const hRank = m.home?.fifaRank||50, aRank = m.away?.fifaRank||50;
+  const hStr = Math.max(0, 60 - hRank), aStr = Math.max(0, 60 - aRank);
+  const total = hStr + aStr + 20;
+  const hImpl = hStr/total, dImpl = 15/total, aImpl = aStr/total;
+  MATCH_ODDS_SIMPLE[m.id] = {
+    home: +(1/hImpl).toFixed(2), draw: +(1/dImpl).toFixed(2), away: +(1/aImpl).toFixed(2),
+  };
+});
 
-// ---- Generate group matches (NO scores, only predictions) ----
-function generateGroupMatches() {
-  const matches = [];
-  let matchId = 1;
-  GROUPS.forEach(group => {
-    const groupTeams = TEAMS.filter(t => t.group === group);
-    const pairs = [[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
-    const dayOffset = GROUPS.indexOf(group);
-    // Each group spread across 3 matchdays
-    const dates = [
-      `2026-06-${String(10+dayOffset).padStart(2,'0')}`,
-      `2026-06-${String(10+dayOffset).padStart(2,'0')}`,
-      `2026-06-${String(15+dayOffset).padStart(2,'0')}`,
-      `2026-06-${String(15+dayOffset).padStart(2,'0')}`,
-      `2026-06-${String(22+dayOffset).padStart(2,'0')}`,
-      `2026-06-${String(22+dayOffset).padStart(2,'0')}`,
-    ];
-    pairs.forEach(([h,a], i) => {
-      const isHomeStronger = groupTeams[h].fifaRank < groupTeams[a].fifaRank;
-      matches.push({
-        id: matchId++, group, stage: 'group',
-        home: groupTeams[h], away: groupTeams[a],
-        date: dates[i],
-        time: ['13:00','16:00','20:00','13:00','20:00','20:00'][i],
-        venue: VENUES[Math.floor(Math.random() * VENUES.length)],
-        prediction: {
-          home: Math.floor(Math.random() * 2) + (isHomeStronger ? 1 : 0),
-          away: Math.floor(Math.random() * 2) + (!isHomeStronger ? 1 : 0),
-        },
-      });
-    });
-  });
-  // Sort by date, then by time
-  matches.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-  return matches;
+function getBetRec(m) {
+  const odds = MATCH_ODDS_SIMPLE[m.id];
+  if (!odds) return null;
+  const pred = m.prediction;
+  const pick = pred.home > pred.away ? 'home' : pred.away > pred.home ? 'away' : 'draw';
+  const pickOdds = parseFloat(odds[pick]);
+  const impHome = 1/parseFloat(odds.home), impDraw = 1/parseFloat(odds.draw), impAway = 1/parseFloat(odds.away);
+  const total = impHome+impDraw+impAway;
+  const implied = (pick==='home'?impHome:pick==='away'?impAway:impDraw)/total;
+  const diff = Math.abs(pred.home-pred.away);
+  const model = pick==='draw' ? 0.2 : 0.3 + diff*0.15;
+  const edge = model - implied;
+  const kelly = edge/(pickOdds-1)*0.25;
+  const stake = edge>0 ? Math.min(Math.max(kelly,0.01),0.15) : Math.max(kelly*0.5,0.005);
+  const label = {home:'主胜',away:'客胜',draw:'平局'}[pick];
+  const confLabel = pred.confidence==='high'?'高信心':pred.confidence==='medium'?'中信心':'低信心';
+  return {label,pick,pickOdds,edge,stake,confLabel,tag:edge>0.05?'value':edge>0?'ok':'skip'};
 }
 
-const GROUP_MATCHES = generateGroupMatches();
+// Full odds for dedicated tab
+const MATCH_ODDS_FULL = {};
+GROUP_MATCHES.slice(0,24).forEach(m => {
+  const so = MATCH_ODDS_SIMPLE[m.id];
+  if (!so) return;
+  MATCH_ODDS_FULL[m.id] = {
+    match: m,
+    winDrawWin: {home:so.home,draw:so.draw,away:so.away},
+    overUnder: {over:+(1.7+Math.random()*1.5).toFixed(2),line:'2.5',under:+(1.7+Math.random()*1.5).toFixed(2)},
+    handicap: {home:+(1.8+Math.random()*1.5).toFixed(2),line:(Math.random()>0.5?'-0.5':'+0.5'),away:+(1.8+Math.random()*1.5).toFixed(2)},
+  };
+});
 
-// ---- Group matches grouped by date ----
-function getMatchesByDate() {
-  const map = new Map();
-  GROUP_MATCHES.forEach(m => {
-    if (!map.has(m.date)) map.set(m.date, []);
-    map.get(m.date).push(m);
-  });
-  return map;
-}
+const OUTRIGHT_ODDS = TEAMS.filter(t=>t.fifaRank<=30).sort((a,b)=>a.fifaRank-b.fifaRank).slice(0,24)
+  .map(t=>({...t,odds:+(3+Math.random()*30).toFixed(2)})).sort((a,b)=>a.odds-b.odds);
 
-// ---- Standings ----
-function generateStandings() {
+// ================================================================
+// TOURNAMENT SCORERS (predicted)
+// ================================================================
+const TOURNAMENT_SCORERS = [
+  {rank:1,n:'姆巴佩',flag:'🇫🇷',team:'法国',goals:'—',pred:'6-8球'},
+  {rank:2,n:'哈兰德',flag:'🇳🇴',team:'挪威',goals:'—',pred:'5-7球'},
+  {rank:3,n:'维尼修斯',flag:'🇧🇷',team:'巴西',goals:'—',pred:'5-6球'},
+  {rank:4,n:'凯恩',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',team:'英格兰',goals:'—',pred:'4-6球'},
+  {rank:5,n:'梅西',flag:'🇦🇷',team:'阿根廷',goals:'—',pred:'4-6球'},
+  {rank:6,n:'卢卡库',flag:'🇧🇪',team:'比利时',goals:'—',pred:'4-5球'},
+  {rank:7,n:'C罗',flag:'🇵🇹',team:'葡萄牙',goals:'—',pred:'4-5球'},
+  {rank:8,n:'萨拉赫',flag:'🇪🇬',team:'埃及',goals:'—',pred:'3-5球'},
+  {rank:9,n:'孙兴慜',flag:'🇰🇷',team:'韩国',goals:'—',pred:'3-5球'},
+  {rank:10,n:'阿尔瓦雷斯',flag:'🇦🇷',team:'阿根廷',goals:'—',pred:'3-4球'},
+];
+
+// ================================================================
+// STANDINGS
+// ================================================================
+function genStandings() {
   const s = {};
-  GROUPS.forEach(group => {
-    s[group] = TEAMS.filter(t => t.group === group)
-      .map(t => ({...t, played:0, won:0, drawn:0, lost:0, gf:0, ga:0, gd:0, pts:0}));
+  GROUPS.forEach(g => {
+    const teams = TEAMS.filter(t=>t.group===g);
+    s[g] = teams.map(t=>({...t,played:0,won:0,drawn:0,lost:0,gf:0,ga:0,gd:0,pts:0}));
   });
   return s;
 }
-const GROUP_STANDINGS = generateStandings();
+const GROUP_STANDINGS = genStandings();
 
-// ---- Odds for ALL matches ----
-function generateOdds() {
-  const baseOdds = {};
-  GROUP_MATCHES.forEach(m => {
-    baseOdds[m.id] = {
-      home: +(1.5+Math.random()*4).toFixed(2),
-      draw: +(2.5+Math.random()*3).toFixed(2),
-      away: +(1.5+Math.random()*5).toFixed(2),
-    };
-  });
-  return baseOdds;
-}
-const MATCH_ODDS_SIMPLE = generateOdds();
-
-// Full odds for dedicated tab (first 20 matches with more bet types)
-const MATCH_ODDS_FULL = {};
-Object.entries(MATCH_ODDS_SIMPLE).forEach(([mid, odds]) => {
-  if (Object.keys(MATCH_ODDS_FULL).length >= 20) return;
-  const m = GROUP_MATCHES.find(x => x.id === +mid);
-  if (!m) return;
-  MATCH_ODDS_FULL[mid] = {
-    match: m,
-    winDrawWin: { home: odds.home, draw: odds.draw, away: odds.away },
-    overUnder: { over: +(1.7+Math.random()*1.5).toFixed(2), line:'2.5', under: +(1.7+Math.random()*1.5).toFixed(2) },
-    handicap: { home: +(1.8+Math.random()*1.5).toFixed(2), line:(Math.random()>0.5?'-0.5':'+0.5'), away: +(1.8+Math.random()*1.5).toFixed(2) },
-  };
-});
-const OUTRIGHT_ODDS = TEAMS.filter(t => t.fifaRank<=30).sort((a,b)=>a.fifaRank-b.fifaRank).slice(0,24)
-  .map(t=>({...t,odds:+(3+Math.random()*30).toFixed(2)})).sort((a,b)=>a.odds-b.odds);
-
-// ===================================================================
-// RENDER
-// ===================================================================
-
-// Date formatter
-function formatDate(dateStr) {
-  const [y,m,d] = dateStr.split('-');
-  const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
-  const date = new Date(+y, +m - 1, +d);
-  const wd = weekdays[date.getDay()];
-  return `${m}月${d}日 ${wd}`;
+// ================================================================
+// H2H DATA (simulated key matchups)
+// ================================================================
+function genH2H(t1, t2) {
+  const h1 = t1?.hist, h2 = t2?.hist;
+  if (!h1||!h2) return null;
+  const total = 3+Math.floor(Math.random()*8);
+  const t1w = Math.floor(Math.random()*Math.min(total,Math.floor(total*0.6)));
+  const t2w = Math.floor(Math.random()*Math.min(total-t1w,Math.floor(total*0.5)));
+  const draws = total-t1w-t2w;
+  const matches = [];
+  for (let i=0;i<Math.min(total,5);i++) {
+    const y = 2016+Math.floor(Math.random()*10);
+    const s1=Math.floor(Math.random()*4),s2=Math.floor(Math.random()*3);
+    const comp = ['世界杯','友谊赛','洲际杯','世界杯预选赛','友谊赛'][Math.floor(Math.random()*5)];
+    matches.push({date:`${y}年`,comp,score:`${s1}:${s2}`,result:s1>s2?t1.name:s2>s1?t2.name:'平局'});
+  }
+  matches.sort((a,b)=>b.date.localeCompare(a.date));
+  return {t1w,t2w,draws,total,matches,t1name:t1.name,t2name:t2.name};
 }
 
-// ---- Schedule by date ----
-function renderSchedule(search = '', filter = 'all') {
-  const container = document.getElementById('scheduleByDate');
-  const byDate = getMatchesByDate();
-  let html = '';
+// Recent 1-year results
+function genRecent(team) {
+  if (!team) return [];
+  const results = [];
+  for (let i=0;i<5;i++) {
+    const r = Math.random();
+    results.push({opponent:TEAMS[Math.floor(Math.random()*TEAMS.length)].name, result:r>0.5?'胜':r>0.25?'平':'负', competition:['世预赛','友谊赛','洲际杯','世预赛','友谊赛'][i]});
+  }
+  return results;
+}
 
-  byDate.forEach((matches, date) => {
-    let filtered = matches;
-    if (filter === 'group') filtered = matches.filter(m => m.stage === 'group');
-    if (search) {
-      const s = search.toLowerCase();
-      filtered = filtered.filter(m =>
-        m.home.name.includes(s) || m.away.name.includes(s) || m.group.toLowerCase() === s
-      );
-    }
-    if (filtered.length === 0) return;
+// ================================================================
+// RENDER: SCHEDULE BY DATE
+// ================================================================
+function formatDate(d){const[_,m,day]=d.split('-');const wd=['周日','周一','周二','周三','周四','周五','周六'];const dt=new Date(+_,+m-1,+day);return `${parseInt(m)}月${parseInt(day)}日 ${wd[dt.getDay()]}`;}
 
-    html += `<div class="date-group">
-      <div class="date-header">
-        <span class="date-icon">📅</span>
-        <span class="date-text">${formatDate(date)}</span>
-        <span class="match-count">${filtered.length} 场比赛</span>
+function getMatchesByDate(){const m=new Map();GROUP_MATCHES.forEach(x=>{if(!m.has(x.date))m.set(x.date,[]);m.get(x.date).push(x);});return m;}
+
+function renderSchedule(search=''){
+  const c=document.getElementById('scheduleByDate'),byDate=getMatchesByDate();
+  let h='';byDate.forEach((ms,date)=>{
+    let f=ms;if(search){const s=search.toLowerCase();f=ms.filter(m=>m.home&&m.away&&(m.home.name.includes(s)||m.away.name.includes(s)||m.group.toLowerCase()===s));}
+    if(!f.length)return;
+    h+=`<div class="date-group"><div class="date-header"><span class="date-icon">📅</span><span class="date-text">${formatDate(date)}</span><span class="match-count">${f.length}场</span></div><div class="match-grid">`;
+    f.forEach(m=>{
+      if(!m.home||!m.away)return;
+      const o=MATCH_ODDS_SIMPLE[m.id]||{};
+      const rec=getBetRec(m);
+      h+=`<div class="match-card"><div class="match-header"><span class="match-group">${m.group}组</span>${m.note?`<span style="font-size:10px;color:var(--gold);">⭐${m.note}</span>`:''}<span class="match-time">${m.time} ET</span><span class="status-upcoming">未开赛</span></div>
+      <div class="match-teams">
+        <div class="team-col"><div class="team-flag" onclick="event.stopPropagation();openTeamModal('${m.home.name}','${m.away.name}')">${m.home.flag}</div><div class="team-name-link" onclick="event.stopPropagation();openTeamModal('${m.home.name}','${m.away.name}')">${m.home.name}</div><div class="team-rank">FIFA #${m.home.fifaRank}</div></div>
+        <div class="match-vs">VS</div>
+        <div class="team-col"><div class="team-flag" onclick="event.stopPropagation();openTeamModal('${m.away.name}','${m.home.name}')">${m.away.flag}</div><div class="team-name-link" onclick="event.stopPropagation();openTeamModal('${m.away.name}','${m.home.name}')">${m.away.name}</div><div class="team-rank">FIFA #${m.away.fifaRank}</div></div>
       </div>
-      <div class="match-grid">`;
-
-    filtered.forEach(m => {
-      const odds = MATCH_ODDS_SIMPLE[m.id] || {home:'-',draw:'-',away:'-'};
-      html += `<div class="match-card">
-        <div class="match-header">
-          <span class="match-group">${m.group}组</span>
-          <span class="match-time">${m.time} ET</span>
-          <span class="status-upcoming">未开始</span>
-        </div>
-        <div class="match-teams">
-          <div class="team-col">
-            <div class="team-flag">${m.home.flag}</div>
-            <div class="team-name-link" onclick="event.stopPropagation();openTeamModal('${m.home.name}')">${m.home.name}</div>
-            <div class="team-rank">FIFA #${m.home.fifaRank}</div>
-          </div>
-          <div class="match-vs">VS</div>
-          <div class="team-col">
-            <div class="team-flag">${m.away.flag}</div>
-            <div class="team-name-link" onclick="event.stopPropagation();openTeamModal('${m.away.name}')">${m.away.name}</div>
-            <div class="team-rank">FIFA #${m.away.fifaRank}</div>
-          </div>
-        </div>
-        <div class="match-prediction">
-          🔮 AI预测：<span class="pred-score">${m.prediction.home} : ${m.prediction.away}</span>
-          <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">（仅供娱乐）</span>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;justify-content:center;align-items:center;">
-          <span style="color:var(--text-muted);">💰 赔率</span>
-          <span style="background:var(--bg-secondary);padding:3px 8px;border-radius:3px;font-family:var(--font-mono);font-weight:700;">主胜 ${odds.home}</span>
-          <span style="background:var(--bg-secondary);padding:3px 8px;border-radius:3px;font-family:var(--font-mono);font-weight:700;">平 ${odds.draw}</span>
-          <span style="background:var(--bg-secondary);padding:3px 8px;border-radius:3px;font-family:var(--font-mono);font-weight:700;">客胜 ${odds.away}</span>
-        </div>
-        <div class="match-venue">📍 ${m.venue}</div>
-      </div>`;
+      <div class="match-prediction">🔮 AI预测：<span class="pred-score">${m.prediction.home}:${m.prediction.away}</span><span style="font-size:10px;color:var(--text-muted);margin-left:4px;">（仅供娱乐）</span></div>
+      <div class="odds-row-inline"><span style="color:var(--text-muted);">💰</span><span class="oi">主${o.home||'-'}</span><span class="oi">平${o.draw||'-'}</span><span class="oi">客${o.away||'-'}</span></div>`;
+      if(rec){
+        const tagColor=rec.tag==='value'?'var(--accent)':rec.tag==='ok'?'var(--gold)':'var(--text-muted)';
+        const tagLabel=rec.tag==='value'?'⭐推荐':rec.tag==='ok'?'建议':'观望';
+        h+=`<div class="bet-rec"><span style="color:${tagColor};font-weight:700;">${tagLabel}</span> 投<span class="bet-pick">${rec.label}</span> @<span class="bet-odds">${rec.pickOdds}</span> · 建议资金 <span class="bet-stake">${(rec.stake*100).toFixed(1)}%</span> · <span style="font-size:10px;color:var(--text-muted);">${rec.confLabel} | 模拟分析</span></div>`;
+      }
+      h+=`<div class="match-venue">📍 ${m.venue}</div></div>`;
     });
-
-    html += `</div></div>`;
+    h+=`</div></div>`;
   });
-
-  container.innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted);">没有匹配的比赛</div>';
+  c.innerHTML=h||'<div style="text-align:center;padding:40px;color:var(--text-muted);">没有匹配的比赛</div>';
 }
 
-// ---- Team Modal ----
-function openTeamModal(teamName) {
-  const team = TEAMS.find(t => t.name === teamName);
-  if (!team) return;
+// ================================================================
+// RENDER: TOURNAMENT SCORERS
+// ================================================================
+function renderScorers(){
+  document.getElementById('tournamentScorers').innerHTML=TOURNAMENT_SCORERS.map(s=>`
+    <div class="scorer-card"><span class="srank">${s.rank}</span><span class="sinfo"><div class="sname">${s.flag} ${s.n} <span style="font-size:10px;color:var(--text-muted);">${s.team}</span></div><div class="sdetail">预测进球：${s.pred}</div></span><span class="sgoals">${s.goals}</span></div>
+  `).join('');
+}
 
-  const hist = team.history;
-  document.getElementById('modalContent').innerHTML = `
+// ================================================================
+// MODAL
+// ================================================================
+function openTeamModal(teamName, opponentName){
+  const t=getTeam(teamName); if(!t)return;
+  const opp=getTeam(opponentName);
+  const hist=t.hist;
+  const h2h=opp?genH2H(t,opp):null;
+  const recent=genRecent(t);
+
+  document.getElementById('modalContent').innerHTML=`
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-team-header">
-      <div class="modal-flag">${team.flag}</div>
-      <div>
-        <div class="modal-team-name">${team.name}</div>
-        <div class="modal-team-meta">${team.group}组 · FIFA排名 #${team.fifaRank} · 主教练：${team.coach} · 战术：${team.style}</div>
-      </div>
+    <div class="modal-team-header"><div class="modal-flag">${t.flag}</div><div><div class="modal-team-name">${t.name}</div><div class="modal-team-meta">${t.group}组 · FIFA #${t.fifaRank} · ${t.coach} · ${t.style}</div></div></div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchModalTab(event,'players')">📋 球员数据</button>
+      <button class="modal-tab" onclick="switchModalTab(event,'history')">📜 历史战绩</button>
+      ${h2h?`<button class="modal-tab" onclick="switchModalTab(event,'h2h')">⚔️ 交锋记录</button>`:''}
+      <button class="modal-tab" onclick="switchModalTab(event,'recent')">📊 近期战绩</button>
     </div>
-
-    <div class="modal-section">
-      <h4>📋 关键球员</h4>
-      <div style="overflow-x:auto;">
-        <table class="players-mini-table">
-          <thead><tr><th>姓名</th><th>位置</th><th>年龄</th><th>俱乐部</th><th>出场</th><th>进球</th></tr></thead>
-          <tbody>${team.players.map(p => `<tr>
-            <td><strong>${p.name}</strong></td>
-            <td><span class="badge ${p.pos==='FW'?'badge-red':p.pos==='MF'?'badge-blue':p.pos==='DF'?'badge-green':'badge-gold'}">${p.pos}</span></td>
-            <td>${p.age}</td><td>${p.club}</td><td>${p.caps}</td><td><strong>${p.goals}</strong></td>
-          </tr>`).join('')}</tbody>
-        </table>
-      </div>
+    <div class="modal-tab-content active" id="mtab-players">
+      <h4>关键球员 & 本届预测数据</h4>
+      <div style="overflow-x:auto;"><table class="players-mini-table"><thead><tr><th>姓名</th><th>位置</th><th>年龄</th><th>俱乐部</th><th>出场</th><th>国家队进球</th><th>本届预测进球</th></tr></thead><tbody>
+        ${t.players.map(p=>`<tr><td><strong>${p.n}</strong></td><td><span class="badge ${p.p==='FW'?'badge-red':p.p==='MF'?'badge-blue':p.p==='DF'?'badge-green':'badge-gold'}">${p.p}</span></td><td>${p.a}</td><td>${p.c}</td><td>${p.caps}</td><td><strong>${p.g}</strong></td><td style="color:var(--gold);">${Math.floor(Math.random()*5)}-${Math.floor(Math.random()*3)+1}球</td></tr>`).join('')}
+      </tbody></table></div>
     </div>
-
-    <div class="modal-section">
-      <h4>📜 世界杯历史战绩</h4>
+    <div class="modal-tab-content" id="mtab-history">
+      <h4>世界杯历史战绩</h4>
       <div class="history-grid">
         <div class="history-item"><div class="h-val">${hist.apps}</div><div class="h-lbl">参赛次数</div></div>
-        <div class="history-item"><div class="h-val" style="color:var(--gold);font-size:12px;">${hist.best}</div><div class="h-lbl">最佳成绩</div></div>
-        <div class="history-item"><div class="h-val">${hist.played}</div><div class="h-lbl">比赛场次</div></div>
-        <div class="history-item"><div class="h-val">${hist.won}</div><div class="h-lbl">胜</div></div>
-        <div class="history-item"><div class="h-val">${hist.drawn}</div><div class="h-lbl">平</div></div>
-        <div class="history-item"><div class="h-val">${hist.lost}</div><div class="h-lbl">负</div></div>
+        <div class="history-item"><div class="h-val" style="color:var(--gold);font-size:11px;">${hist.best}</div><div class="h-lbl">最佳成绩</div></div>
+        <div class="history-item"><div class="h-val">${hist.p}</div><div class="h-lbl">总场次</div></div>
+        <div class="history-item"><div class="h-val">${hist.w}</div><div class="h-lbl">胜</div></div>
+        <div class="history-item"><div class="h-val">${hist.d}</div><div class="h-lbl">平</div></div>
+        <div class="history-item"><div class="h-val">${hist.l}</div><div class="h-lbl">负</div></div>
         <div class="history-item"><div class="h-val">${hist.gf}</div><div class="h-lbl">进球</div></div>
         <div class="history-item"><div class="h-val">${hist.ga}</div><div class="h-lbl">失球</div></div>
       </div>
     </div>
+    ${h2h?`<div class="modal-tab-content" id="mtab-h2h">
+      <h4>⚔️ ${t.name} vs ${opp.name} · 近10年交锋记录</h4>
+      <div class="h2h-summary">
+        <div class="h2h-item"><div class="h2h-val" style="color:var(--accent);">${h2h.t1w}</div><div class="h2h-lbl">${t.name} 胜</div></div>
+        <div class="h2h-item"><div class="h2h-val" style="color:var(--text-muted);">${h2h.draws}</div><div class="h2h-lbl">平局</div></div>
+        <div class="h2h-item"><div class="h2h-val" style="color:var(--red);">${h2h.t2w}</div><div class="h2h-lbl">${opp.name} 胜</div></div>
+      </div>
+      <div class="h2h-matches">${h2h.matches.map(x=>`<div class="h2h-match"><span class="h2h-date">${x.date}</span><span style="font-size:10px;color:var(--text-muted);">${x.comp}</span><span style="font-weight:700;">${x.score}</span><span style="font-size:11px;${x.result===t.name?'color:var(--accent);':x.result===opp.name?'color:var(--red);':''}">${x.result}</span></div>`).join('')}</div>
+    </div>`:''}
+    <div class="modal-tab-content" id="mtab-recent">
+      <h4>📊 ${t.name} 近1年大赛战绩</h4>
+      <div class="h2h-matches">${recent.map((x,i)=>`<div class="h2h-match"><span>${x.competition}</span><span>vs ${x.opponent}</span><span style="font-weight:700;color:${x.result==='胜'?'var(--accent)':x.result==='平'?'var(--text-muted)':'var(--red)'}">${x.result}</span></div>`).join('')}</div>
+      <p style="font-size:10px;color:var(--text-muted);margin-top:8px;">* 模拟数据，仅供参考</p>
+    </div>
   `;
-
   document.getElementById('teamModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
 
-function closeModal() {
-  document.getElementById('teamModal').classList.remove('open');
-  document.body.style.overflow = '';
+function switchModalTab(e,tab){
+  e.target.parentElement.querySelectorAll('.modal-tab').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  document.querySelectorAll('.modal-tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('mtab-'+tab).classList.add('active');
 }
 
-// ---- Standings ----
-function renderStandingGroupFilters() {
-  const container = document.getElementById('standingGroupFilters');
-  container.innerHTML = GROUPS.map(g => `<button class="filter-btn" data-group-filter="${g}">${g}组</button>`).join('');
-  container.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelector('#section-standings .filter-bar .filter-btn[data-group-filter="all"]').classList.remove('active');
-      renderStandings(btn.dataset.groupFilter);
-    });
-  });
+function closeModal(){document.getElementById('teamModal').classList.remove('open');document.body.style.overflow='';}
+
+// ================================================================
+// STANDINGS
+// ================================================================
+function renderStandingGroupFilters(){
+  const c=document.getElementById('standingGroupFilters');
+  c.innerHTML=GROUPS.map(g=>`<button class="filter-btn" data-group-filter="${g}">${g}组</button>`).join('');
+  c.querySelectorAll('.filter-btn').forEach(b=>{b.addEventListener('click',()=>{c.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector('#section-standings .filter-bar .filter-btn[data-group-filter="all"]').classList.remove('active');renderStandings(b.dataset.groupFilter);});});
+}
+function renderStandings(fg='all'){
+  const c=document.getElementById('standingsGrid'),gs=fg==='all'?GROUPS:[fg];
+  c.innerHTML=gs.map(g=>{const ts=GROUP_STANDINGS[g];return`<div class="group-table-card"><div class="group-table-title"><span>${g}组</span></div><table><thead><tr><th>#</th><th>球队</th><th>赛</th><th>胜</th><th>平</th><th>负</th><th>进球</th><th>失球</th><th>净胜</th><th>积分</th></tr></thead><tbody>${ts.map((t,i)=>`<tr class="${i<2?'qual-zone':i===2?'qual-zone-playoff':''}"><td>${i+1}</td><td><strong>${t.flag} ${t.name}</strong></td><td>${t.played}</td><td>${t.won}</td><td>${t.drawn}</td><td>${t.lost}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gd}</td><td class="pts-col">${t.pts}</td></tr>`).join('')}</tbody></table></div>`;}).join('');
 }
 
-function renderStandings(filterGroup = 'all') {
-  const container = document.getElementById('standingsGrid');
-  const groups = filterGroup === 'all' ? GROUPS : [filterGroup];
-  container.innerHTML = groups.map(group => {
-    const teams = GROUP_STANDINGS[group];
-    return `<div class="group-table-card">
-      <div class="group-table-title"><span>${group}组</span></div>
-      <table>
-        <thead><tr><th>#</th><th>球队</th><th>赛</th><th>胜</th><th>平</th><th>负</th><th>进球</th><th>失球</th><th>净胜</th><th>积分</th></tr></thead>
-        <tbody>${teams.map((t,i) => `<tr class="${i<2?'qual-zone':i===2?'qual-zone-playoff':''}">
-          <td>${i+1}</td><td><strong>${t.flag} ${t.name}</strong></td>
-          <td>${t.played}</td><td>${t.won}</td><td>${t.drawn}</td><td>${t.lost}</td>
-          <td>${t.gf}</td><td>${t.ga}</td><td>${t.gd}</td><td class="pts-col">${t.pts}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-    </div>`;
-  }).join('');
+// ================================================================
+// ODDS TAB
+// ================================================================
+function renderMatchOdds(){
+  const e=Object.values(MATCH_ODDS_FULL);
+  document.getElementById('matchOdds').innerHTML=e.map(x=>`<div class="odds-card"><div class="odds-match-header"><span class="odds-teams">${x.match.home?.flag||''} ${x.match.home?.name||''} vs ${x.match.away?.name||''} ${x.match.away?.flag||''}</span></div><div class="odds-type-label">胜平负</div><div class="odds-row"><div><div class="odds-label">主胜</div><div class="odds-value">${x.winDrawWin.home}</div></div><div><div class="odds-label">平局</div><div class="odds-value">${x.winDrawWin.draw}</div></div><div><div class="odds-label">客胜</div><div class="odds-value">${x.winDrawWin.away}</div></div></div><div class="odds-type-label">大小球 ${x.overUnder.line}</div><div class="odds-row"><div><div class="odds-label">大球</div><div class="odds-value">${x.overUnder.over}</div></div><div style="visibility:hidden;"></div><div><div class="odds-label">小球</div><div class="odds-value">${x.overUnder.under}</div></div></div><div class="odds-type-label">让球盘 ${x.handicap.line}</div><div class="odds-row"><div><div class="odds-label">主队</div><div class="odds-value">${x.handicap.home}</div></div><div style="visibility:hidden;"></div><div><div class="odds-label">客队</div><div class="odds-value">${x.handicap.away}</div></div></div></div>`).join('');
 }
 
-// ---- Odds ----
-function renderMatchOdds() {
-  const entries = Object.values(MATCH_ODDS_FULL);
-  document.getElementById('matchOdds').innerHTML = entries.map(e => `
-    <div class="odds-card">
-      <div class="odds-match-header">
-        <span class="odds-teams">${e.match.home.flag} ${e.match.home.name} vs ${e.match.away.name} ${e.match.away.flag}</span>
-      </div>
-      <div class="odds-type-label">胜平负</div>
-      <div class="odds-row">
-        <div><div class="odds-label">主胜</div><div class="odds-value">${e.winDrawWin.home}</div></div>
-        <div><div class="odds-label">平局</div><div class="odds-value">${e.winDrawWin.draw}</div></div>
-        <div><div class="odds-label">客胜</div><div class="odds-value">${e.winDrawWin.away}</div></div>
-      </div>
-      <div class="odds-type-label">大小球 ${e.overUnder.line}</div>
-      <div class="odds-row">
-        <div><div class="odds-label">大球</div><div class="odds-value">${e.overUnder.over}</div></div>
-        <div style="visibility:hidden;"></div>
-        <div><div class="odds-label">小球</div><div class="odds-value">${e.overUnder.under}</div></div>
-      </div>
-      <div class="odds-type-label">让球盘 ${e.handicap.line}</div>
-      <div class="odds-row">
-        <div><div class="odds-label">主队</div><div class="odds-value">${e.handicap.home}</div></div>
-        <div style="visibility:hidden;"></div>
-        <div><div class="odds-label">客队</div><div class="odds-value">${e.handicap.away}</div></div>
-      </div>
-    </div>
-  `).join('');
+// ================================================================
+// NAVIGATION
+// ================================================================
+function switchSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  document.querySelector(`.nav-tab[data-section="${id}"]`).classList.add('active');
 }
 
-// ---- Scorers ----
-function renderScorers() {
-  document.getElementById('scorersGrid').innerHTML = ALL_TIME_SCORERS.map(s => `
-    <div class="scorer-item">
-      <span class="scorer-rank">${s.rank}</span>
-      <span class="scorer-info"><div class="scorer-name">${s.name}</div><div class="scorer-detail">${s.country} · ${s.tournaments}</div></span>
-      <span class="scorer-goals">${s.goals}</span>
-    </div>
-  `).join('');
-}
-
-function toggleCollapsible(toggle) {
-  const content = toggle.nextElementSibling;
-  const arrow = toggle.querySelector('.arrow');
-  content.classList.toggle('open');
-  arrow.textContent = content.classList.contains('open') ? '▼' : '▶';
-}
-
-// ---- Navigation ----
-function switchSection(sectionId) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`section-${sectionId}`).classList.add('active');
-  document.querySelector(`.nav-tab[data-section="${sectionId}"]`).classList.add('active');
-}
-
-// ===================================================================
+// ================================================================
 // INIT
-// ===================================================================
-function init() {
-  renderSchedule();
-  renderScorers();
-  renderStandingGroupFilters();
-  renderStandings();
-  renderMatchOdds();
+// ================================================================
+function init(){
+  renderSchedule(); renderScorers(); renderStandingGroupFilters(); renderStandings(); renderMatchOdds();
+  document.getElementById('outrightOdds').innerHTML=OUTRIGHT_ODDS.map(t=>`<div class="outright-card"><span class="flag">${t.flag}</span><span class="name">${t.name}</span><span class="odds">${t.odds.toFixed(2)}</span></div>`).join('');
 
-  document.getElementById('outrightOdds').innerHTML = OUTRIGHT_ODDS.map(t => `
-    <div class="outright-card"><span class="flag">${t.flag}</span><span class="name">${t.name}</span><span class="odds">${t.odds.toFixed(2)}</span></div>
-  `).join('');
+  // Nav
+  document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>switchSection(t.dataset.section)));
 
-  // Nav tabs
-  document.querySelectorAll('.nav-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchSection(tab.dataset.section));
-  });
+  // Stage toggle
+  document.querySelectorAll('.stage-btn').forEach(b=>{b.addEventListener('click',()=>{
+    document.querySelectorAll('.stage-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    const stage=b.dataset.stage;
+    document.getElementById('groupStageContent').style.display=stage==='group'?'':'none';
+    document.getElementById('knockoutStageContent').style.display=stage==='knockout'?'':'none';
+  });});
 
-  // Schedule search
-  document.getElementById('scheduleSearch').addEventListener('input', e => {
-    const activeFilter = document.querySelector('#section-schedule .filter-bar .filter-btn.active');
-    renderSchedule(e.target.value, activeFilter ? activeFilter.dataset.filter : 'all');
-  });
+  // Search
+  document.getElementById('scheduleSearch').addEventListener('input',e=>renderSchedule(e.target.value));
 
-  // Schedule filter buttons
-  document.querySelectorAll('#section-schedule .filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#section-schedule .filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const search = document.getElementById('scheduleSearch').value;
-      renderSchedule(search, btn.dataset.filter);
-    });
-  });
+  // Standings all
+  document.querySelector('#section-standings .filter-bar .filter-btn[data-group-filter="all"]').addEventListener('click',function(){document.querySelectorAll('#standingGroupFilters .filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderStandings('all');});
 
-  // Standings filters
-  document.querySelector('#section-standings .filter-bar .filter-btn[data-group-filter="all"]').addEventListener('click', function() {
-    document.querySelectorAll('#standingGroupFilters .filter-btn').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    renderStandings('all');
-  });
-
-  // ESC to close modal
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 }
-
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
