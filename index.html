@@ -259,15 +259,21 @@ function seededRandom(seed){let s=seed;return function(){s=(s*16807+0)%214748364
 // Match objects with stable predictions (NO Math.random)
 function smartPred(h,a){
   const hr=h?.rk||50,ar=a?.rk||50;
-  const seed=(h?.n||'A').charCodeAt(0)*10000+(a?.n||'B').charCodeAt(0)*100+hr*10+ar;
+  // Better seed: use full team names + ranks for maximum variation
+  let seed=0;const hn=h?.n||'A',an=a?.n||'B';
+  for(let i=0;i<Math.max(hn.length,an.length);i++){seed+=(hn.charCodeAt(i%hn.length)||65)*(i+1)*31+(an.charCodeAt(i%an.length)||65)*(i+1)*17;}
+  seed=(seed+hr*1000+ar*100)*7+13;
   const rng=seededRandom(seed);
   const strengthGap=hr-ar;const absGap=Math.abs(strengthGap);const strongerAway=strengthGap>0;
-  let homeG,awayG,upsetLevel='lo';const r=rng();
-  // Increased upset probabilities
-  if(absGap>30&&r<0.18){upsetLevel='hi';if(strongerAway){homeG=1+Math.floor(rng()*3);awayG=Math.floor(rng()*2);}else{homeG=Math.floor(rng()*2);awayG=1+Math.floor(rng()*3);}}
-  else if(absGap>20&&r<0.28){upsetLevel='hi';if(strongerAway){homeG=2+Math.floor(rng()*2);awayG=Math.floor(rng()*1);}else{homeG=Math.floor(rng()*1);awayG=2+Math.floor(rng()*2);}}
-  else if(absGap>15&&r<0.30){upsetLevel='md';if(strongerAway){homeG=Math.floor(rng()*2);awayG=Math.floor(rng()*2);if(homeG===awayG)homeG+=1;}else{homeG=Math.floor(rng()*2);awayG=Math.floor(rng()*2);if(homeG===awayG)awayG+=1;}}
-  else if(absGap>8&&r<0.25){upsetLevel='md';if(strongerAway){homeG=1+Math.floor(rng()*2);awayG=Math.floor(rng());}else{homeG=Math.floor(rng());awayG=1+Math.floor(rng()*2);}}
+  let homeG,awayG,upsetLevel='lo';
+  // Call rng a few extra times to scramble based on gap
+  for(let i=0;i<(absGap%7);i++)rng();
+  const r=rng();
+  // Upset logic (significantly higher probabilities)
+  if(absGap>25&&r<0.40){upsetLevel='hi';if(strongerAway){homeG=1+Math.floor(rng()*3);awayG=Math.floor(rng()*2);}else{homeG=Math.floor(rng()*2);awayG=1+Math.floor(rng()*3);}}
+  else if(absGap>15&&r<0.50){upsetLevel='hi';if(strongerAway){homeG=2+Math.floor(rng()*2);awayG=Math.floor(rng()*1);}else{homeG=Math.floor(rng()*1);awayG=2+Math.floor(rng()*2);}}
+  else if(absGap>10&&r<0.55){upsetLevel='md';if(strongerAway){homeG=Math.floor(rng()*2);awayG=Math.floor(rng()*2);if(homeG===awayG)homeG+=1;}else{homeG=Math.floor(rng()*2);awayG=Math.floor(rng()*2);if(homeG===awayG)awayG+=1;}}
+  else if(absGap>5&&r<0.45){upsetLevel='md';if(strongerAway){homeG=1+Math.floor(rng()*2);awayG=Math.floor(rng());}else{homeG=Math.floor(rng());awayG=1+Math.floor(rng()*2);}}
   else{upsetLevel='lo';const edge=1+Math.floor(absGap/15);if(strongerAway){homeG=Math.floor(rng()*2);awayG=Math.min(5,edge+Math.floor(rng()*2));}else{homeG=Math.min(5,edge+Math.floor(rng()*2));awayG=Math.floor(rng()*2);}}
   if(homeG+awayG<1){homeG=1;awayG=0;}if(homeG+awayG>7){homeG=Math.min(4,homeG);awayG=Math.min(4,awayG);}
   return{home:homeG,away:awayG,upset:upsetLevel,gap:absGap};
@@ -485,7 +491,7 @@ function confirmBet(mid,type,label,odds){
 }
 function doQuickBet(mid){}
 
-function updateBetTab(){const bal=br();document.getElementById('betBal').textContent='¥'+bal.toFixed(2);const pnl=document.getElementById('betPnL');const v=bal-100000;pnl.textContent=(v>=0?'+':'')+'¥'+v.toFixed(0);pnl.style.color=v>=0?'var(--grn)':'var(--red)';const h=bh(),tb=document.getElementById('betTbody');if(!h.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:30px;">暂无投注记录</td></tr>';return;}tb.innerHTML=h.map((r,i)=>`<tr><td style="font-size:10px;color:var(--tm);">${r.time}</td><td>#${r.mid}</td><td>${r.match}</td><td style="font-size:10px;">${r.type}</td><td>${r.pick}</td><td style="font-family:var(--mono);">${r.odds}</td><td style="font-family:var(--mono);">¥${r.amt.toFixed(0)}</td><td style="font-weight:700;color:${r.status==='pending'?'var(--blu)':r.res==='win'?'var(--grn)':'var(--red)'};">${r.status==='pending'?'⏳待开奖':r.res==='win'?'✅赢':'❌输'}</td><td>${r.status==='pending'?`<button class="fbtn" style="padding:2px 8px;font-size:10px;" onclick="removeBet(${i})">取消</button>`:'—'}</td></tr>`).join('');}
+function updateBetTab(){const bal=br();document.getElementById('betBal').textContent='¥'+bal.toFixed(2);const pnl=document.getElementById('betPnL');const v=bal-100000;pnl.textContent=(v>=0?'+':'')+'¥'+v.toFixed(0);pnl.style.color=v>=0?'var(--grn)':'var(--red)';const h=bh(),tb=document.getElementById('betTbody');if(!h.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:30px;">暂无投注记录</td></tr>';return;}tb.innerHTML=h.map((r,i)=>`<tr><td style="font-size:10px;color:var(--tm);">${r.time}</td><td>#${r.mid}</td><td>${r.match}</td><td style="font-size:10px;">${r.type}</td><td style="font-family:var(--mono);">${r.odds}</td><td style="font-family:var(--mono);">¥${r.amt.toFixed(0)}</td><td style="font-weight:700;color:${r.status==='pending'?'var(--blu)':r.res==='win'?'var(--grn)':'var(--red)'};">${r.status==='pending'?'⏳待开奖':r.res==='win'?'✅赢':'❌输'}</td><td>${r.status==='pending'?`<button class="fbtn" style="padding:2px 8px;font-size:10px;" onclick="removeBet(${i})">取消</button>`:'—'}</td></tr>`).join('');}
 
 function toast(msg,type){const c=document.getElementById('toastContainer');const el=document.createElement('div');el.className='toast toast-'+(type||'ok');el.textContent=msg;c.appendChild(el);setTimeout(()=>el.remove(),2000);}
 
