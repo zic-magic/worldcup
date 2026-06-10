@@ -289,13 +289,23 @@ ROD['英格兰_克罗地亚']={h:1.55,d:3.40,a:5.25};ROD['乌兹别克斯坦_哥
 const MODS={};
 GM.forEach(m=>{if(!m.home||!m.away)return;const k=m.home.n+'_'+m.away.n;const r=ROD[k];MODS[m.id]=r?{home:r.h,draw:r.d,away:r.a,src:'竞彩官方'}:(()=>{const hr=m.home.rk||50,ar=m.away.rk||50;const hs=Math.max(0,65-hr),as=Math.max(0,65-ar),t=hs+as+18;return{home:+(1/(hs/t)).toFixed(2),draw:+(1/(15/t)).toFixed(2),away:+(1/(as/t)).toFixed(2),src:'模拟'};})();});
 
-// Smart combo — only includes bets where odds justify it
+// Smart combo — prediction-aligned, always sums to 100%
 function getComboPlan(m){
   const o=MODS[m.id];if(!o||!m.home||!m.away)return null;
   const p=m.pred;const hr=m.home.rk,ar=m.away.rk;const gap=hr-ar;const absGap=Math.abs(gap);
-  const mh=gap<-20?0.55:gap<-10?0.42:gap<10?0.35:0.25;
-  const ma=gap>20?0.55:gap>10?0.42:gap<10?0.35:0.25;
-  const md=Math.max(0.15,1-mh-ma);
+  const goalDiff=p.home-p.away;
+  // Model probabilities: blend rank gap (60%) + predicted score (40%)
+  const rankMh=gap<-20?0.55:gap<-10?0.42:gap<5?0.35:0.25;
+  const rankMa=gap>20?0.55:gap>10?0.42:gap<5?0.35:0.25;
+  // Score-based: big goal diff = higher confidence
+  const scoreConf=Math.min(0.9,0.4+Math.abs(goalDiff)*0.15);
+  const scoreMh=goalDiff>0?scoreConf:goalDiff<0?(1-scoreConf):0.5;
+  const scoreMa=goalDiff>0?(1-scoreConf):goalDiff<0?scoreConf:0.5;
+  // Blend
+  const mh=rankMh*0.5+scoreMh*0.5;
+  const ma=rankMa*0.5+scoreMa*0.5;
+  const md=Math.max(0.12,1-mh-ma);
+
   const ih=1/parseFloat(o.home),id=1/parseFloat(o.draw),ia=1/parseFloat(o.away);
   const it=ih+id+ia;const ph=ih/it,pd=id/it,pa=ia/it;
   const eh=mh-ph,ed=md-pd,ea=ma-pa;
@@ -305,39 +315,17 @@ function getComboPlan(m){
   const kSum=kh+kd+ka||1;
 
   const items=[];
-  // 胜平负 — always include all three
-  const spfW=kh/kSum*60,spfD=kd/kSum*60,spfA=ka/kSum*60;
-  const minPct=5;
-  let adjW=spfW,adjD=spfD,adjA=spfA;
-  if(eh>0&&adjW<minPct)adjW=minPct;if(ed>0&&adjD<minPct)adjD=minPct;if(ea>0&&adjA<minPct)adjA=minPct;
-  // Redistribute
-  const bonus=60-(adjW+adjD+adjA);
-  if(bonus>0){const best=eh>ed&&eh>ea?'w':ed>eh&&ed>ea?'d':'a';if(best==='w')adjW+=bonus;else if(best==='d')adjD+=bonus;else adjA+=bonus;}
-  if(adjW>0)items.push({type:'胜平负',pick:'主胜',odds:o.home,pct:adjW,note:eh>0.03?'主推':eh>0?'轻注':'防冷'});
-  if(adjD>0)items.push({type:'胜平负',pick:'平局',odds:o.draw,pct:adjD,note:ed>0.03?'博平':ed>0?'轻注':'防冷'});
-  if(adjA>0)items.push({type:'胜平负',pick:'客胜',odds:o.away,pct:adjA,note:ea>0.03?'主推':ea>0?'轻注':'防冷'});
-
-  // 让球 — only when gap suggests meaningful handicap
-  if(absGap>10){
-    const hcPick=gap<0?'主胜(-1)':'主胜(+1)';
-    const hcOdds=+(parseFloat(gap<0?o.home:o.away)*(gap<0?0.68:1.45)).toFixed(2);
-    items.push({type:'让球胜平负',pick:hcPick,odds:hcOdds,pct:15,note:absGap>20?'深盘博穿':'浅盘博赢'});
-  }
-
-  // 比分 — only when prediction has clear edge or it's a close match
+  const rawW=kh/kSum,rawD=kd/kSum,rawA=ka/kSum;
+  if(rawW>0.01)items.push({type:'胜平负',pick:'主胜',odds:o.home,raw:rawW,note:eh>0.03?'主推':eh>0?'轻注':'防冷'});
+  if(rawD>0.01)items.push({type:'胜平负',pick:'平局',odds:o.draw,raw:rawD,note:ed>0.03?'博平':ed>0?'轻注':'防冷'});
+  if(rawA>0.01)items.push({type:'胜平负',pick:'客胜',odds:o.away,raw:rawA,note:ea>0.03?'主推':ea>0?'轻注':'防冷'});
+  if(absGap>10){const hcPick=gap<0?'主胜(-1)':'主胜(+1)';const hcOdds=+(parseFloat(gap<0?o.home:o.away)*(gap<0?0.68:1.45)).toFixed(2);items.push({type:'让球胜平负',pick:hcPick,odds:hcOdds,raw:0.18,note:absGap>20?'深盘博穿':'浅盘博赢'});}
   const tg=p.home+p.away;
-  if(tg>=2&&tg<=5){
-    const scOdds=+(5+Math.random()*10).toFixed(2);
-    items.push({type:'比分',pick:p.home+':'+p.away,odds:scOdds,pct:10,note:'波胆'});
-  }
+  if(tg>=1&&tg<=5){const scOdds=+(5+Math.random()*10).toFixed(2);items.push({type:'比分',pick:p.home+':'+p.away,odds:scOdds,raw:0.12,note:'波胆'});}
+  if(tg>=4||tg<=1){const tgOdds=tg>=4?+(2.5+Math.random()*4).toFixed(2):+(1.4+Math.random()*2).toFixed(2);items.push({type:'总进球数',pick:tg+'球',odds:tgOdds,raw:tg<=1?0.15:0.10,note:tg>=4?'大球':tg<=1?'小球':'趋势'});}
 
-  // 总进球 — only when total goals are extreme
-  if(tg>=4||tg<=1){
-    const tgOdds=tg>=4?+(2.5+Math.random()*4).toFixed(2):+(1.4+Math.random()*2).toFixed(2);
-    items.push({type:'总进球数',pick:tg+'球',odds:tgOdds,pct:tg<=1?15:10,note:tg>=4?'大球':tg<=1?'小球':'趋势'});
-  }
-
-  return items.filter(x=>x.pct>0);
+  const totalRaw=items.reduce((s,x)=>s+x.raw,0);
+  return items.map(x=>({type:x.type,pick:x.pick,odds:x.odds,pct:Math.round(x.raw/totalRaw*100),note:x.note})).filter(x=>x.pct>0);
 }
 
 // Standings
@@ -372,7 +360,7 @@ function renderSchedule(search=''){
       <div class="match-teams"><div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.n}</div><div class="trank">FIFA #${m.home.rk}</div></div>
       <div class="match-vs">VS</div>
       <div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.away.n}','${m.home.n}')">${m.away.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.away.n}','${m.home.n}')">${m.away.n}</div><div class="trank">FIFA #${m.away.rk}</div></div></div>
-      <div class="match-pred">🔮 AI预测：<span class="ps">${m.pred.home}:${m.pred.away}</span><span class="upset-idx ${upCls}">${upLabel}</span><span style="font-size:10px;color:var(--tm);margin-left:4px;">（仅供娱乐）</span></div>
+      <div class="match-pred">🔮 AI预测：<span class="ps">${m.pred.home}:${m.pred.away}</span><span class="upset-idx ${upCls}">${upLabel}</span><button class="fbtn" style="padding:2px 8px;font-size:10px;margin-left:6px;" onclick="event.stopPropagation();showReason(${m.id})">📊 预测理由</button></div>
       <div class="odds-inline"><span style="color:var(--tm);">💰</span><span class="oi">主${o.home||'-'}</span><span class="oi">平${o.draw||'-'}</span><span class="oi">客${o.away||'-'}</span><span class="odds-src" style="color:${o.src==='竞彩官方'?'var(--grn)':'var(--tm)'};">${o.src||''}</span></div>`;
       if(cp){
         h+=`<div class="combo-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arr').textContent=this.nextElementSibling.classList.contains('open')?'▼':'▶'"><span class="arr">▶</span> 📊 展开智能投注方案（Kelly模型 · 含对冲）</div>
@@ -387,10 +375,12 @@ function renderSchedule(search=''){
             <div style="background:var(--card);padding:8px 10px;border-radius:4px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid transparent;" onmouseenter="this.style.borderColor='var(--grn)'" onmouseleave="this.style.borderColor='transparent'" onclick="confirmBet(${m.id},'handicap_home','让球主胜',${(parseFloat(o.home)*0.72).toFixed(2)})"><span>让球主胜</span><span style="font-family:var(--mono);font-weight:700;color:var(--gld);">${(parseFloat(o.home)*0.72).toFixed(2)}</span></div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
-            <span style="font-size:10px;color:var(--tm);">比分：</span><input type="text" id="qbscore${m.id}" value="${m.pred.home}:${m.pred.away}" style="width:50px;padding:4px;background:var(--card);border:1px solid var(--bd);border-radius:4px;color:var(--t);font-size:11px;font-family:var(--mono);text-align:center;">
-            <button class="fbtn" style="padding:3px 10px;font-size:10px;" onclick="const v=document.getElementById('qbscore${m.id}').value;if(v.includes(':'))confirmBet(${m.id},'score:'+v,'比分'+v,${(6+Math.random()*14).toFixed(2)})">投比分</button>
-            <span style="font-size:10px;color:var(--tm);">进球：</span><select id="qbtotal${m.id}" style="padding:4px;background:var(--card);border:1px solid var(--bd);border-radius:4px;color:var(--t);font-size:11px;"><option value="0">0球</option><option value="1">1球</option><option value="2">2球</option><option value="3" selected>3球</option><option value="4">4球</option><option value="5">5+球</option></select>
-            <button class="fbtn" style="padding:3px 10px;font-size:10px;" onclick="const v=document.getElementById('qbtotal${m.id}').value;confirmBet(${m.id},'total:'+v,'总进球'+v+'球',${(1.6+Math.random()*4).toFixed(2)})">投进球</button>
+            <span style="font-size:10px;color:var(--tm);">比分：</span><input type="text" id="qbscore${m.id}" value="${m.pred.home}:${m.pred.away}" style="width:50px;padding:4px;background:var(--card);border:1px solid var(--bd);border-radius:4px;color:var(--t);font-size:11px;font-family:var(--mono);text-align:center;" oninput="updateScoreOdds(${m.id})">
+            <span style="font-size:10px;color:var(--gld);font-family:var(--mono);" id="qbscoreOdds${m.id}">@${cp.find(x=>x.type==='比分')?.odds||'6.50'}</span>
+            <button class="fbtn" style="padding:3px 10px;font-size:10px;" onclick="const v=document.getElementById('qbscore${m.id}').value;const o=document.getElementById('qbscoreOdds${m.id}').textContent.replace('@','');if(v.includes(':'))confirmBet(${m.id},'score:'+v,'比分'+v,parseFloat(o))">投比分</button>
+            <span style="font-size:10px;color:var(--tm);">进球：</span><select id="qbtotal${m.id}" style="padding:4px;background:var(--card);border:1px solid var(--bd);border-radius:4px;color:var(--t);font-size:11px;" onchange="updateTotalOdds(${m.id})"><option value="0">0球</option><option value="1">1球</option><option value="2">2球</option><option value="3" selected>3球</option><option value="4">4球</option><option value="5">5+球</option></select>
+            <span style="font-size:10px;color:var(--gld);font-family:var(--mono);" id="qbtotalOdds${m.id}">@${cp.find(x=>x.type==='总进球数')?.odds||'2.50'}</span>
+            <button class="fbtn" style="padding:3px 10px;font-size:10px;" onclick="const v=document.getElementById('qbtotal${m.id}').value;const o=document.getElementById('qbtotalOdds${m.id}').textContent.replace('@','');confirmBet(${m.id},'total:'+v,'总进球'+v+'球',parseFloat(o))">投进球</button>
           </div>
         </div></div>`;
       }
@@ -405,7 +395,7 @@ function renderSchedule(search=''){
 function genH2H(t1,t2,n1,n2){if(!t1||!t2)return null;const total=3+Math.floor(Math.random()*8);const maxW=Math.min(total-1,Math.floor(total*0.6));const t1w=maxW>0?Math.floor(Math.random()*(maxW+1)):0;const remain=total-t1w;const maxT2w=Math.min(Math.max(0,remain-1),Math.floor(remain*0.5));const t2w=maxT2w>0?Math.floor(Math.random()*(maxT2w+1)):0;const draws=total-t1w-t2w;const ms=[];for(let i=0;i<Math.min(total,5);i++){const y=2016+Math.floor(Math.random()*10);const s1=Math.floor(Math.random()*4),s2=Math.floor(Math.random()*3);ms.push({d:y+'年',comp:['世界杯','友谊赛','洲际杯','世预赛','友谊赛'][i],sc:s1+':'+s2,res:s1>s2?n1:s2>s1?n2:'平局'});}ms.sort((a,b)=>b.d.localeCompare(a.d));return{t1w,t2w,draws,total,ms,t1n:n1,t2n:n2};}
 // Real recent international match results (2024-2026, qualifiers + friendlies + tournaments)
 const RECENT_RESULTS={
-'阿根廷':[{o:'巴西',s:'4:1',r:'胜',c:'世预赛'},{o:'乌拉圭',s:'1:0',r:'胜',c:'世预赛'},{o:'秘鲁',s:'2:0',r:'胜',c:'世预赛'},{o:'巴拉圭',s:'0:0',r:'平',c:'世预赛'},{o:'哥伦比亚',s:'1:2',r:'负',c:'世预赛'}],
+'阿根廷':[{o:'哥伦比亚',s:'1:1',r:'平',c:'世预赛'},{o:'智利',s:'1:0',r:'胜',c:'世预赛'},{o:'巴西',s:'4:1',r:'胜',c:'世预赛'},{o:'乌拉圭',s:'1:0',r:'胜',c:'世预赛'},{o:'委内瑞拉',s:'3:0',r:'胜',c:'世预赛'}],
 '法国':[{o:'意大利',s:'1:3',r:'负',c:'欧国联'},{o:'比利时',s:'2:0',r:'胜',c:'欧国联'},{o:'以色列',s:'4:0',r:'胜',c:'欧国联'},{o:'希腊',s:'3:0',r:'胜',c:'欧预赛'},{o:'荷兰',s:'2:1',r:'胜',c:'欧预赛'}],
 '巴西':[{o:'阿根廷',s:'1:4',r:'负',c:'世预赛'},{o:'乌拉圭',s:'1:1',r:'平',c:'世预赛'},{o:'哥伦比亚',s:'2:1',r:'胜',c:'世预赛'},{o:'厄瓜多尔',s:'1:0',r:'胜',c:'世预赛'},{o:'巴拉圭',s:'4:0',r:'胜',c:'世预赛'}],
 '英格兰':[{o:'希腊',s:'3:0',r:'胜',c:'欧预赛'},{o:'爱尔兰',s:'5:0',r:'胜',c:'欧预赛'},{o:'芬兰',s:'2:0',r:'胜',c:'欧预赛'},{o:'比利时',s:'2:2',r:'平',c:'友谊赛'},{o:'巴西',s:'0:1',r:'负',c:'友谊赛'}],
@@ -476,7 +466,11 @@ function resetBankroll(){if(confirm('确定重置资金为¥100,000并清空投�
 function getBetOdds(mid,type){const o=MODS[mid];if(!o)return 0;if(type.startsWith('score:'))return 6+Math.random()*14;if(type.startsWith('total:'))return 1.6+Math.random()*4;switch(type){case'home':return parseFloat(o.home);case'draw':return parseFloat(o.draw);case'away':return parseFloat(o.away);case'handicap_home':return parseFloat(o.home)*0.72;case'handicap_away':return parseFloat(o.away)*0.72;default:return parseFloat(o.home);}}
 function getBetLabel(mid,type){const m=GM.find(x=>x.id===mid);const mn=m?m.home.n+'vs'+m.away.n:'';if(type.startsWith('score:'))return'比分-'+mn+'-'+type.split(':')[1];if(type.startsWith('total:'))return'总进球-'+mn+'-'+type.split(':')[1]+'球';const lbs={home:'胜平负-主胜',draw:'胜平负-平局',away:'胜平负-客胜',handicap_home:'让球-主胜',handicap_away:'让球-客胜'};return(lbs[type]||type)+'-'+mn;}
 
-function confirmBet(mid,type,label,odds){
+function updateScoreOdds(mid){const el=document.getElementById('qbscore'+mid);const oel=document.getElementById('qbscoreOdds'+mid);if(!el||!oel)return;const v=el.value;if(!v.includes(':'))return;const[p]=v.split(':');const h=parseInt(p);let odds;if(isNaN(h))odds=8+Math.random()*12;else if(h<=1)odds=4+h*2+Math.random()*4;else if(h<=3)odds=6+h*2+Math.random()*8;else odds=10+h*3+Math.random()*15;oel.textContent='@'+Math.min(80,odds).toFixed(2);}
+function updateTotalOdds(mid){const el=document.getElementById('qbtotal'+mid);const oel=document.getElementById('qbtotalOdds'+mid);if(!el||!oel)return;const v=parseInt(el.value);const odds=isNaN(v)?3.0:v===0?10+Math.random()*8:v===1?3.5+Math.random()*2.5:v===2?2.2+Math.random()*2:v===3?1.8+Math.random()*1.5:v===4?2.5+Math.random()*3:4+Math.random()*6;oel.textContent='@'+odds.toFixed(2);}
+function showReason(mid){const m=GM.find(x=>x.id===mid);if(!m)return;const p=m.pred;const o=MODS[mid];const hr=m.home.rk,ar=m.away.rk;const gap=hr-ar;const absGap=Math.abs(gap);const stronger=gap<0?m.home.n:gap>0?m.away.n:'实力接近';const edge=gap<0?absGap:absGap;const formAdv=gap<0?'主队'+m.home.n:gap>0?'客队'+m.away.n:'双方';const upsetHint=p.upset==='hi'?'⚠️ 预测爆冷！弱队逆袭概率较高':p.upset==='md'?'⚡ 中爆冷风险，存在不确定性':'✅ 低风险，强队优势明显';const oddsInfo=o?`竞彩赔率：主${o.home}/平${o.draw}/客${o.away}`:'赔率数据暂无';
+  const msg=`📊 预测分析报告\n\n⚽ ${m.home.n} vs ${m.away.n}\n📈 预测比分：${p.home}:${p.away}\n🏷 爆冷等级：${p.upset==='hi'?'高':p.upset==='md'?'中':'低'}\n\n📋 分析依据：\n• FIFA排名差：${absGap}位 (${m.home.n}#${hr} vs ${m.away.n}#${ar})\n• 实力优势方：${stronger}\n• ${oddsInfo}\n• 进球预期：${p.home+p.away}球（${p.home+p.away>2?'偏大':'正常'}范围）\n\n🔍 ${upsetHint}\n📌 投注建议：结合Kelly模型分配资金，关注胜平负主推项\n\n⚠️ AI分析仅供娱乐，实际赛果以比赛为准`;
+  alert(msg);}
   const m=GM.find(x=>x.id===mid);if(!m)return;
   const bal=br();
   const amt=prompt(`确认投注\n\n${m.home.f} ${m.home.n} vs ${m.away.n} ${m.away.f}\n选项：${label}\n赔率：${odds}\n当前余额：¥${bal.toFixed(0)}\n\n请输入投注金额：`,'1000');
