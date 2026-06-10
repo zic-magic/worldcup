@@ -189,7 +189,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:16px 24px;text-align:center;"><div style="font-size:11px;color:var(--tm);">总盈亏</div><div style="font-size:28px;font-weight:900;font-family:var(--mono);" id="betPnL">¥0</div></div>
     <button class="fbtn" onclick="resetBankroll()" style="margin-left:auto;">🔄 重置</button>
   </div>
-  <div style="overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r);"><table><thead><tr><th>时间</th><th>比赛ID</th><th>对阵</th><th>玩法</th><th>选项</th><th>赔率</th><th>金额</th><th>状态</th><th>操作</th></tr></thead><tbody id="betTbody"><tr><td colspan="9" style="text-align:center;color:var(--tm);padding:30px;">暂无投注记录</td></tr></tbody></table></div>
+  <div style="overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r);"><table style="min-width:900px;"><thead><tr><th style="width:140px;">时间</th><th style="width:60px;">场次</th><th>对阵</th><th>玩法</th><th>赔率</th><th style="width:80px;">金额</th><th style="width:80px;">状态</th><th style="width:70px;">操作</th></tr></thead><tbody id="betTbody"><tr><td colspan="8" style="text-align:center;color:var(--tm);padding:30px;">暂无投注记录</td></tr></tbody></table></div>
 </section>
 
 </div>
@@ -319,7 +319,7 @@ function getComboPlan(m){
   if(rawW>0.01)items.push({type:'胜平负',pick:'主胜',odds:o.home,raw:rawW,note:eh>0.03?'主推':eh>0?'轻注':'防冷'});
   if(rawD>0.01)items.push({type:'胜平负',pick:'平局',odds:o.draw,raw:rawD,note:ed>0.03?'博平':ed>0?'轻注':'防冷'});
   if(rawA>0.01)items.push({type:'胜平负',pick:'客胜',odds:o.away,raw:rawA,note:ea>0.03?'主推':ea>0?'轻注':'防冷'});
-  if(absGap>10){const hcPick=gap<0?'主胜(-1)':'主胜(+1)';const hcOdds=+(parseFloat(gap<0?o.home:o.away)*(gap<0?0.68:1.45)).toFixed(2);items.push({type:'让球胜平负',pick:hcPick,odds:hcOdds,raw:0.18,note:absGap>20?'深盘博穿':'浅盘博赢'});}
+  if(absGap>10){const hcPick=gap<0?'主胜(-1)':'主胜(+1)';const hcOdds=+(parseFloat(gap<0?o.home:o.away)*(gap<0?2.0:0.55)).toFixed(2);items.push({type:'让球胜平负',pick:hcPick,odds:hcOdds,raw:0.18,note:absGap>20?'深盘博穿':'浅盘博赢'});}
   const tg=p.home+p.away;
   if(tg>=1&&tg<=5){const scOdds=+(5+Math.random()*10).toFixed(2);items.push({type:'比分',pick:p.home+':'+p.away,odds:scOdds,raw:0.12,note:'波胆'});}
   if(tg>=4||tg<=1){const tgOdds=tg>=4?+(2.5+Math.random()*4).toFixed(2):+(1.4+Math.random()*2).toFixed(2);items.push({type:'总进球数',pick:tg+'球',odds:tgOdds,raw:tg<=1?0.15:0.10,note:tg>=4?'大球':tg<=1?'小球':'趋势'});}
@@ -471,22 +471,21 @@ function updateTotalOdds(mid){const el=document.getElementById('qbtotal'+mid);co
 function showReason(mid){const m=GM.find(x=>x.id===mid);if(!m)return;const p=m.pred;const o=MODS[mid];const hr=m.home.rk,ar=m.away.rk;const gap=hr-ar;const absGap=Math.abs(gap);const stronger=gap<0?m.home.n:gap>0?m.away.n:'实力接近';const edge=gap<0?absGap:absGap;const formAdv=gap<0?'主队'+m.home.n:gap>0?'客队'+m.away.n:'双方';const upsetHint=p.upset==='hi'?'⚠️ 预测爆冷！弱队逆袭概率较高':p.upset==='md'?'⚡ 中爆冷风险，存在不确定性':'✅ 低风险，强队优势明显';const oddsInfo=o?`竞彩赔率：主${o.home}/平${o.draw}/客${o.away}`:'赔率数据暂无';
   const msg=`📊 预测分析报告\n\n⚽ ${m.home.n} vs ${m.away.n}\n📈 预测比分：${p.home}:${p.away}\n🏷 爆冷等级：${p.upset==='hi'?'高':p.upset==='md'?'中':'低'}\n\n📋 分析依据：\n• FIFA排名差：${absGap}位 (${m.home.n}#${hr} vs ${m.away.n}#${ar})\n• 实力优势方：${stronger}\n• ${oddsInfo}\n• 进球预期：${p.home+p.away}球（${p.home+p.away>2?'偏大':'正常'}范围）\n\n🔍 ${upsetHint}\n📌 投注建议：结合Kelly模型分配资金，关注胜平负主推项\n\n⚠️ AI分析仅供娱乐，实际赛果以比赛为准`;
   alert(msg);}
+function isStarted(m){if(!m)return true;const dt=new Date(m.date+'T'+m.time+':00');return new Date()>=dt;}
+function confirmBet(mid,type,label,odds){
   const m=GM.find(x=>x.id===mid);if(!m)return;
+  if(isStarted(m)){toast('比赛已开赛，无法投注','err');return;}
   const bal=br();
   const amt=prompt(`确认投注\n\n${m.home.f} ${m.home.n} vs ${m.away.n} ${m.away.f}\n选项：${label}\n赔率：${odds}\n当前余额：¥${bal.toFixed(0)}\n\n请输入投注金额：`,'1000');
   if(!amt||isNaN(amt)||parseFloat(amt)<=0)return;
   if(parseFloat(amt)>bal){toast('余额不足！','err');return;}
-  placeBetRaw(mid,parseFloat(amt),type,label,parseFloat(odds));
+  sbr(bal-parseFloat(amt));
+  abh({time:new Date().toLocaleString('zh-CN'),mid,match:m.home.f+' '+m.home.n+' vs '+m.away.n,type:label,pick:type,odds:parseFloat(odds).toFixed(2),amt:parseFloat(amt),status:'pending',bal:bal-parseFloat(amt),res:''});
+  updateBetTab();toast(`投注成功！¥${parseFloat(amt).toFixed(0)} @${parseFloat(odds).toFixed(2)} · ${label}`,'ok');
 }
-function placeBetRaw(mid,amt,type,label,odd){
-  const m=GM.find(x=>x.id===mid);const bal=br();sbr(bal-amt);
-  abh({time:new Date().toLocaleString('zh-CN'),mid,match:m.home.f+' '+m.home.n+' vs '+m.away.n,type:label,pick:type,odds:odd.toFixed(2),amt,status:'pending',bal:bal-amt,res:''});
-  updateBetTab();toast(`投注成功！¥${amt.toFixed(0)} @${odd.toFixed(2)} · ${label}`,'ok');
-}
-function doQuickBet(mid){} // noop, kept for compat
-function placeBet(mid,amt,type){if(!mid||!amt||amt<=0){toast('请填写比赛ID和有效金额','err');return;}const bal=br();if(amt>bal){toast('余额不足！当前余额：¥'+bal.toFixed(2),'err');return;}const m=GM.find(x=>x.id===mid);if(!m||!m.home||!m.away){toast('未找到该比赛','err');return;}const odd=getBetOdds(mid,type);if(!odd){toast('暂无赔率','err');return;}const label=getBetLabel(mid,type);sbr(bal-amt);abh({time:new Date().toLocaleString('zh-CN'),mid,match:m.home.f+' '+m.home.n+' vs '+m.away.n,type:label,pick:type,odds:odd.toFixed(2),amt,status:'pending',bal:bal-amt,res:''});updateBetTab();toast(`投注成功！¥${amt.toFixed(0)} @${odd.toFixed(2)} · ${label}`,'ok');}
+function doQuickBet(mid){}
 
-function updateBetTab(){const bal=br();document.getElementById('betBal').textContent='¥'+bal.toFixed(2);const pnl=document.getElementById('betPnL');const v=bal-100000;pnl.textContent=(v>=0?'+':'')+'¥'+v.toFixed(0);pnl.style.color=v>=0?'var(--grn)':'var(--red)';const h=bh(),tb=document.getElementById('betTbody');if(!h.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--tm);padding:30px;">暂无投注记录</td></tr>';return;}tb.innerHTML=h.map((r,i)=>`<tr><td style="font-size:10px;color:var(--tm);">${r.time}</td><td>#${r.mid}</td><td>${r.match}</td><td style="font-size:10px;">${r.type}</td><td>${r.pick}</td><td style="font-family:var(--mono);">${r.odds}</td><td style="font-family:var(--mono);">¥${r.amt.toFixed(0)}</td><td style="font-weight:700;color:${r.status==='pending'?'var(--blu)':r.res==='win'?'var(--grn)':'var(--red)'};">${r.status==='pending'?'⏳待开奖':r.res==='win'?'✅赢':'❌输'}</td><td>${r.status==='pending'?`<button class="fbtn" style="padding:2px 8px;font-size:10px;" onclick="removeBet(${i})">取消</button>`:'—'}</td></tr>`).join('');}
+function updateBetTab(){const bal=br();document.getElementById('betBal').textContent='¥'+bal.toFixed(2);const pnl=document.getElementById('betPnL');const v=bal-100000;pnl.textContent=(v>=0?'+':'')+'¥'+v.toFixed(0);pnl.style.color=v>=0?'var(--grn)':'var(--red)';const h=bh(),tb=document.getElementById('betTbody');if(!h.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:30px;">暂无投注记录</td></tr>';return;}tb.innerHTML=h.map((r,i)=>`<tr><td style="font-size:10px;color:var(--tm);">${r.time}</td><td>#${r.mid}</td><td>${r.match}</td><td style="font-size:10px;">${r.type}</td><td>${r.pick}</td><td style="font-family:var(--mono);">${r.odds}</td><td style="font-family:var(--mono);">¥${r.amt.toFixed(0)}</td><td style="font-weight:700;color:${r.status==='pending'?'var(--blu)':r.res==='win'?'var(--grn)':'var(--red)'};">${r.status==='pending'?'⏳待开奖':r.res==='win'?'✅赢':'❌输'}</td><td>${r.status==='pending'?`<button class="fbtn" style="padding:2px 8px;font-size:10px;" onclick="removeBet(${i})">取消</button>`:'—'}</td></tr>`).join('');}
 
 function toast(msg,type){const c=document.getElementById('toastContainer');const el=document.createElement('div');el.className='toast toast-'+(type||'ok');el.textContent=msg;c.appendChild(el);setTimeout(()=>el.remove(),2000);}
 
