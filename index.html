@@ -262,7 +262,7 @@ function teamStrength(team){const rk=team?.rk||99;const atk=Math.round(90-(rk-1)
 // Recent form adjustment (-0.5 to +0.5 goals)
 function formAdj(team){if(typeof RECENT_RESULTS==='undefined')return 0;const key=team?.n||'';const results=RECENT_RESULTS[key];if(!results||!results.length)return 0;let adj=0;results.slice(0,5).forEach(r=>{adj+=r.r==='胜'?0.12:r.r==='平'?0.02:-0.1;});return Math.max(-0.5,Math.min(0.5,adj));}
 
-// Expected goals + historical World Cup score distribution
+// Expected goals + odds-implied prior → Bayesian blend
 function smartPred(h,a){
   const hr=h?.rk||50,ar=a?.rk||50;const hs=teamStrength(h),as=teamStrength(a);
   let seed=0;const hn=h?.n||'A',an=a?.n||'B';
@@ -270,17 +270,35 @@ function smartPred(h,a){
   seed=(seed+hr*1000+ar*100)*7+13;const rng=seededRandom(seed);
   const absGap=Math.abs(hr-ar);for(let i=0;i<(absGap%7);i++)rng();
 
-  // Expected goals with wider variance
+  // ===== 1. xG model (our prediction) =====
   const homeBase=(hs.atk-as.def)/42;
   const awayBase=(as.atk-hs.def)/42;
-  const homeAdv=0.35;
+  // World Cup: no home advantage except for host nations (USA/Canada/Mexico)
+  const hosts=['美国','加拿大','墨西哥'];
+  const homeAdv=hosts.includes(h?.n)?0.35:0;
   const hForm=formAdj(h),aForm=formAdj(a);
   const hNoise=(rng()-0.5)*2.2,aNoise=(rng()-0.5)*2.2;
   let homeXG=Math.max(0.05,Math.min(5.5,homeBase+homeAdv+hForm+hNoise));
   let awayXG=Math.max(0.05,Math.min(4.5,awayBase+aForm+aNoise));
-  const xgDiff=homeXG-awayXG;
+  const xgDiff_raw=homeXG-awayXG;
 
-  // Map xgDiff to realistic WC scores (weighted)
+  // ===== 2. Odds-implied prior =====
+  const key=h?.n+'_'+a?.n;const rod=ROD[key];
+  let ph_odds=0.33,pd_odds=0.34,pa_odds=0.33; // default uniform
+  if(rod){
+    const ih=1/rod.h,id=1/rod.d,ia=1/rod.a,it=ih+id+ia;
+    ph_odds=ih/it;pd_odds=id/it;pa_odds=ia/it;
+  }else{
+    const hs2=Math.max(3,65-hr),as2=Math.max(3,65-ar),t2=hs2+as2+18;
+    ph_odds=hs2/t2;pd_odds=15/t2;pa_odds=as2/t2;
+  }
+  // Expected goal diff from odds
+  const oddsED=(ph_odds*1.3+pd_odds*0-pa_odds*1.3); // weighted by avg goal value
+
+  // ===== 3. Bayesian blend (50% xG + 50% odds) =====
+  const xgDiff=xgDiff_raw*0.50+oddsED*0.50;
+
+  // ===== 4. Score pool from blended xgDiff =====
   const scorePool=[];
   const add=(h,a,w)=>{for(let i=0;i<w;i++)scorePool.push([h,a]);};
   if(xgDiff>2.0){add(2,0,3);add(3,0,2);add(3,1,2);add(4,0,1);add(4,1,1);add(2,1,1);add(1,0,1);add(5,0,1);}
@@ -293,7 +311,7 @@ function smartPred(h,a){
   const pick=scorePool[Math.floor(rng()*scorePool.length)];
   let homeG=pick[0],awayG=pick[1];
 
-  // Upset: swap if triggered
+  // ===== 5. Upset from blended xgDiff =====
   const rankFavorsHome=hr<ar;
   let upsetLevel='lo';
   if(rankFavorsHome&&xgDiff<-0.3){upsetLevel='hi';let t=homeG;homeG=awayG+1;awayG=t;}
