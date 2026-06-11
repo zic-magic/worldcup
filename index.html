@@ -371,7 +371,8 @@ function getComboPlan(m){
     keepSPF=spfItems.slice(0,2);
   }else if(absGD===0&&spfItems.length>2){    // draw → keep draw + best
     const drawItem=spfItems.find(x=>x.pick==='平局');
-    const bestNonDraw=spfItems.filter(x=>x.pick!=='平局').reduce((a,b)=>a.raw>b.raw?a:b,null);
+    const nonDraw=spfItems.filter(x=>x.pick!=='平局');
+    const bestNonDraw=nonDraw.length?nonDraw.reduce((a,b)=>a.raw>b.raw?a:b):null;
     keepSPF=drawItem?[drawItem,bestNonDraw].filter(Boolean):spfItems.slice(0,2);
   }else{keepSPF=spfItems;}
   // Rebuild: remove all SPF, add back kept ones
