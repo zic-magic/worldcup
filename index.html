@@ -260,7 +260,7 @@ function seededRandom(seed){let s=seed;return function(){s=(s*16807+0)%214748364
 function teamStrength(team){const rk=team?.rk||99;const atk=Math.round(90-(rk-1)*0.45);const def=Math.round(88-(rk-1)*0.42);return{atk:Math.max(30,atk),def:Math.max(25,def)};}
 
 // Recent form adjustment (-0.5 to +0.5 goals)
-function formAdj(team){const key=team?.n||'';const results=RECENT_RESULTS[key];if(!results||!results.length)return 0;let adj=0;const recent5=results.slice(0,5);recent5.forEach(r=>{adj+=r.r==='胜'?0.12:r.r==='平'?0.02:-0.1;});return Math.max(-0.5,Math.min(0.5,adj));}
+function formAdj(team){if(typeof RECENT_RESULTS==='undefined')return 0;const key=team?.n||'';const results=RECENT_RESULTS[key];if(!results||!results.length)return 0;let adj=0;results.slice(0,5).forEach(r=>{adj+=r.r==='胜'?0.12:r.r==='平'?0.02:-0.1;});return Math.max(-0.5,Math.min(0.5,adj));}
 
 // Expected-goals-based prediction with home advantage + recent form
 function smartPred(h,a){
@@ -288,13 +288,13 @@ function smartPred(h,a){
   if(homeG===awayG&&homeG===0){homeG=1;awayG=0;}
   if(homeG===awayG&&homeG===0){homeG=1;}
 
-  // Upset level based on xG difference vs rank expectation
+  // Upset level — wider thresholds for more variety
   const xgDiff=homeXG-awayXG;const rankFavorsHome=hr<ar;
   let upsetLevel='lo';
-  if(rankFavorsHome&&xgDiff<-0.5)upsetLevel='hi';
-  else if(!rankFavorsHome&&xgDiff>0.5)upsetLevel='hi';
-  else if(rankFavorsHome&&xgDiff<0.2)upsetLevel='md';
-  else if(!rankFavorsHome&&xgDiff>-0.2)upsetLevel='md';
+  if(rankFavorsHome&&xgDiff<-0.3)upsetLevel='hi';
+  else if(!rankFavorsHome&&xgDiff>0.3)upsetLevel='hi';
+  else if(rankFavorsHome&&xgDiff<0.4)upsetLevel='md';
+  else if(!rankFavorsHome&&xgDiff>-0.4)upsetLevel='md';
   else upsetLevel='lo';
 
   return{home:homeG,away:awayG,upset:upsetLevel,gap:absGap,xgHome:homeXG,xgAway:awayXG};
@@ -316,70 +316,51 @@ ROD['英格兰_克罗地亚']={h:1.55,d:3.40,a:5.25};ROD['乌兹别克斯坦_哥
 const MODS={};
 GM.forEach(m=>{if(!m.home||!m.away)return;const k=m.home.n+'_'+m.away.n;const r=ROD[k];MODS[m.id]=r?{home:r.h,draw:r.d,away:r.a,src:'竞彩官方'}:(()=>{const hr=m.home.rk||50,ar=m.away.rk||50;const hs=Math.max(0,65-hr),as=Math.max(0,65-ar),t=hs+as+18;return{home:+(1/(hs/t)).toFixed(2),draw:+(1/(15/t)).toFixed(2),away:+(1/(as/t)).toFixed(2),src:'模拟'};})();});
 
-// Pure prediction-driven combo — NO odds comparison, NO Kelly
+// Prediction-driven combo — aggressive allocation when confident
 function getComboPlan(m){
   const o=MODS[m.id];if(!o||!m.home||!m.away)return null;
-  const p=m.pred;const hr=m.home.rk,ar=m.away.rk;const absGap=Math.abs(hr-ar);
-  const goalDiff=p.home-p.away;const totalG=p.home+p.away;
+  const p=m.pred;const goalDiff=p.home-p.away;const totalG=p.home+p.away;
+  const absGap=Math.abs(m.home.rk-m.away.rk);
 
-  // Confidence score: goal diff + rank diff + home advantage
-  const conf=Math.abs(goalDiff)*10 + absGap/5 + (goalDiff>0?3:0);
-  let hPct,dPct,aPct;
-  if(goalDiff>=2){hPct=60;dPct=20;aPct=20;}        // 预测大胜主队
-  else if(goalDiff>=1){hPct=45;dPct=30;aPct=25;}     // 预测小胜主队
-  else if(goalDiff<=-2){hPct=20;dPct=20;aPct=60;}    // 预测大胜客队
-  else if(goalDiff<=-1){hPct=25;dPct=30;aPct=45;}    // 预测小胜客队
-  else{hPct=30;dPct=40;aPct=30;}                      // 预测平局
+  // 1. Direction from prediction (model probability)
+  let mh,md,ma;
+  if(goalDiff>=3){mh=0.85;md=0.10;ma=0.05;}else if(goalDiff===2){mh=0.72;md=0.18;ma=0.10;}else if(goalDiff===1){mh=0.52;md=0.30;ma=0.18;}else if(goalDiff===0){mh=0.30;md=0.40;ma=0.30;}else if(goalDiff===-1){mh=0.18;md=0.30;ma=0.52;}else if(goalDiff===-2){mh=0.10;md=0.18;ma=0.72;}else{mh=0.05;md=0.10;ma=0.85;}
 
-  // Build items — all prediction-driven
+  // 2. Value check: compare model vs market implied probability
+  const ih=1/parseFloat(o.home),id=1/parseFloat(o.draw),ia=1/parseFloat(o.away);
+  const it=ih+id+ia;const ph=ih/it,pd=id/it,pa=ia/it;
+  const edgeH=mh-ph, edgeD=md-pd, edgeA=ma-pa;
+
+  // 3. Base weights from prediction direction
+  let wH,wD,wA;
+  if(goalDiff>=2){wH=65;wD=20;wA=15;}else if(goalDiff===1){wH=45;wD=32;wA=23;}else if(goalDiff===0){wH=28;wD=44;wA=28;}else if(goalDiff===-1){wH=23;wD=32;wA=45;}else{wH=15;wD=20;wA=65;}
+
+  // 4. Odds adjust: positive edge → boost, negative → reduce (max ±15%)
+  const adjH=Math.round(Math.max(-15,Math.min(15,edgeH*50)));
+  const adjD=Math.round(Math.max(-15,Math.min(15,edgeD*50)));
+  const adjA=Math.round(Math.max(-15,Math.min(15,edgeA*50)));
+  wH+=adjH;wD+=adjD;wA+=adjA;
+  // Redistribute the adjustment difference
+  const diff=(wH+wD+wA)-100;
+  if(diff!==0){const largest=wH>=wD&&wH>=wA?'H':wD>=wA?'D':'A';if(largest==='H')wH-=diff;else if(largest==='D')wD-=diff;else wA-=diff;}
+  wH=Math.max(5,wH);wD=Math.max(5,wD);wA=Math.max(5,wA);
+
   const items=[];
-  if(hPct>0)items.push({type:'胜平负',pick:'主胜',odds:o.home,pct:hPct,note:goalDiff>=2?'主推':goalDiff>0?'方向':'对冲'});
-  if(dPct>0)items.push({type:'胜平负',pick:'平局',odds:o.draw,pct:dPct,note:'防守'});
-  if(aPct>0)items.push({type:'胜平负',pick:'客胜',odds:o.away,pct:aPct,note:goalDiff<=-2?'主推':goalDiff<0?'方向':'对冲'});
-
-  // 让球: only when rank gap justifies it
-  if(absGap>15){
-    const hcPick=hr<ar?'主胜(-1)':'主胜(+1)';const hcRaw=hr<ar?parseFloat(o.home)*2.0:parseFloat(o.home)*0.5;
-    items.push({type:'让球胜平负',pick:hcPick,odds:Math.max(1.3,hcRaw).toFixed(2),pct:10,note:hr<ar?'深盘博穿':'受让博赢'});
-    hPct-=10; // Subtract from main
+  if(wH>0)items.push({type:'胜平负',pick:'主胜',odds:o.home,raw:wH,note:edgeH>0.05?'价值主推':goalDiff>0?'方向':'防冷'});
+  if(wD>0)items.push({type:'胜平负',pick:'平局',odds:o.draw,raw:wD,note:'防守'});
+  if(wA>0)items.push({type:'胜平负',pick:'客胜',odds:o.away,raw:wA,note:edgeA>0.05?'价值主推':goalDiff<0?'方向':'防冷'});
+  if(absGap>15&&Math.abs(goalDiff)>=1){
+    const hcPick=m.home.rk<m.away.rk?'主胜(-1)':'主胜(+1)';
+    const hcOdds=m.home.rk<m.away.rk?+(parseFloat(o.home)*2.0).toFixed(2):+(parseFloat(o.home)*0.5).toFixed(2);
+    items.push({type:'让球胜平负',pick:hcPick,odds:Math.max(1.3,hcOdds).toFixed(2),raw:12,note:'博穿'});
   }
+  if(totalG>=1&&totalG<=5&&Math.abs(goalDiff)>=1)
+    items.push({type:'比分',pick:p.home+':'+p.away,odds:(5+Math.abs(goalDiff)*3).toFixed(2),raw:10,note:'波胆'});
+  if(totalG>=4)items.push({type:'总进球数',pick:totalG+'球(大)',odds:(1.8+totalG*0.5).toFixed(2),raw:8,note:'大球'});
+  else if(totalG<=1)items.push({type:'总进球数',pick:totalG+'球(小)',odds:'2.00',raw:8,note:'小球'});
 
-  // 比分: prediction IS the score bet
-  if(totalG>=1&&totalG<=5&&Math.abs(goalDiff)>=1){
-    items.push({type:'比分',pick:p.home+':'+p.away,odds:(5+Math.abs(goalDiff)*3).toFixed(2),pct:10,note:'预测比分'});
-    if(goalDiff>=2)hPct-=10;else if(goalDiff<=-2)aPct-=10;else dPct-=10;
-  }
-
-  // 总进球: only when extreme
-  if(totalG>=4){items.push({type:'总进球数',pick:totalG+'球(大)',odds:(1.8+totalG*0.5).toFixed(2),pct:10,note:'大球'});hPct-=5;aPct-=5;}
-  else if(totalG<=1){items.push({type:'总进球数',pick:totalG+'球(小)',odds:(2.0).toFixed(2),pct:10,note:'小球'});hPct-=5;aPct-=5;}
-
-  // Normalize remaining
-  const normSum=hPct+dPct+aPct;
-  const result=[];
-  if(hPct>0)result.push({type:'胜平负',pick:'主胜',odds:o.home,pct:Math.round(hPct/normSum*(100-(result.length?result.reduce((s,x)=>s+x.pct,0):0))),note:goalDiff>=2?'主推':goalDiff>0?'方向':'对冲'});
-  else result.push({type:'胜平负',pick:'主胜',odds:o.home,pct:0,note:'—'});
-  // Rebuild cleanly
-  const final=[];
-  const baseItems=[
-    {t:'胜平负',p:'主胜',od:o.home,raw:hPct,n:goalDiff>=2?'主推':goalDiff>0?'方向':'对冲'},
-    {t:'胜平负',p:'平局',od:o.draw,raw:dPct,n:'防守'},
-    {t:'胜平负',p:'客胜',od:o.away,raw:aPct,n:goalDiff<=-2?'主推':goalDiff<0?'方向':'对冲'},
-  ];
-  baseItems.forEach(x=>{if(x.raw>0)final.push({type:x.t,pick:x.p,odds:x.od,raw:x.raw,note:x.n});});
-  // Add extra bet types
-  if(absGap>15){
-    const hcPick=hr<ar?'主胜(-1)':'主胜(+1)';const hcRaw=hr<ar?parseFloat(o.home)*2.0:parseFloat(o.home)*0.5;
-    final.push({type:'让球胜平负',pick:hcPick,odds:Math.max(1.3,hcRaw).toFixed(2),raw:10,note:hr<ar?'深盘博穿':'受让博赢'});
-  }
-  if(totalG>=1&&totalG<=5&&Math.abs(goalDiff)>=1){
-    final.push({type:'比分',pick:p.home+':'+p.away,odds:(5+Math.abs(goalDiff)*3).toFixed(2),raw:10,note:'预测比分'});
-  }
-  if(totalG>=4)final.push({type:'总进球数',pick:totalG+'球(大)',odds:(1.8+totalG*0.5).toFixed(2),raw:8,note:'大球'});
-  else if(totalG<=1)final.push({type:'总进球数',pick:totalG+'球(小)',odds:'2.00',raw:8,note:'小球'});
-
-  const totalRaw=final.reduce((s,x)=>s+(x.raw||0),0);
-  return final.map(x=>({type:x.type,pick:x.pick,odds:x.odds,pct:Math.round((x.raw||0)/totalRaw*100),note:x.note})).filter(x=>x.pct>0);
+  const totalRaw=items.reduce((s,x)=>s+x.raw,0);
+  return items.map(x=>({type:x.type,pick:x.pick,odds:x.odds,pct:Math.round(x.raw/totalRaw*100),note:x.note})).filter(x=>x.pct>0);
 }
 
 // Standings
@@ -417,7 +398,7 @@ function renderSchedule(search=''){
       <div class="match-pred">🔮 AI预测：<span class="ps">${m.pred.home}:${m.pred.away}</span><span class="upset-idx ${upCls}">${upLabel}</span><button class="fbtn" style="padding:2px 8px;font-size:10px;margin-left:6px;" onclick="event.stopPropagation();showReason(${m.id})">📊 预测理由</button></div>
       <div class="odds-inline"><span style="color:var(--tm);">💰</span><span class="oi">主${o.home||'-'}</span><span class="oi">平${o.draw||'-'}</span><span class="oi">客${o.away||'-'}</span><span class="odds-src" style="color:${o.src==='竞彩官方'?'var(--grn)':'var(--tm)'};">${o.src||''}</span></div>`;
       if(cp){
-        h+=`<div class="combo-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arr').textContent=this.nextElementSibling.classList.contains('open')?'▼':'▶'"><span class="arr">▶</span> 📊 展开投注方案（预测驱动 · 100%分配）</div>
+        h+=`<div class="combo-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arr').textContent=this.nextElementSibling.classList.contains('open')?'▼':'▶'"><span class="arr">▶</span> 📊 展开投注方案（预测驱动 · Kelly分配）</div>
         <div class="combo-content"><div style="display:grid;grid-template-columns:auto auto 1fr auto auto;gap:4px 8px;align-items:center;font-size:10px;padding:4px 0;border-bottom:1px solid var(--bd);color:var(--tm);"><span>类型</span><span></span><span>选项</span><span>赔率</span><span>比例</span></div>
         ${cp.map(x=>`<div class="combo-row"><span class="c-type"><span class="badge ${x.type==='胜平负'?'bg-g':x.type==='让球胜平负'?'bg-b':x.type==='比分'?'bg-r':'bg-gd'}">${x.type}</span></span><span style="font-size:9px;color:var(--tm);">${x.note}</span><span class="c-pick">${x.pick}</span><span class="c-odds">@${x.odds}</span><span class="c-pct">${x.pct}%</span></div>`).join('')}
         <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bd);">
@@ -447,8 +428,9 @@ function renderSchedule(search=''){
 
 // ===== MODAL =====
 function genH2H(t1,t2,n1,n2){if(!t1||!t2)return null;const total=3+Math.floor(Math.random()*8);const maxW=Math.min(total-1,Math.floor(total*0.6));const t1w=maxW>0?Math.floor(Math.random()*(maxW+1)):0;const remain=total-t1w;const maxT2w=Math.min(Math.max(0,remain-1),Math.floor(remain*0.5));const t2w=maxT2w>0?Math.floor(Math.random()*(maxT2w+1)):0;const draws=total-t1w-t2w;const ms=[];for(let i=0;i<Math.min(total,5);i++){const y=2016+Math.floor(Math.random()*10);const s1=Math.floor(Math.random()*4),s2=Math.floor(Math.random()*3);ms.push({d:y+'年',comp:['世界杯','友谊赛','洲际杯','世预赛','友谊赛'][i],sc:s1+':'+s2,res:s1>s2?n1:s2>s1?n2:'平局'});}ms.sort((a,b)=>b.d.localeCompare(a.d));return{t1w,t2w,draws,total,ms,t1n:n1,t2n:n2};}
-// Real recent international match results (2024-2026, qualifiers + friendlies + tournaments)
-const RECENT_RESULTS={
+// Real recent international match results (2024-2026)
+var RECENT_RESULTS;
+RECENT_RESULTS={
 '阿根廷':[{o:'哥伦比亚',s:'1:1',r:'平',c:'世预赛'},{o:'智利',s:'1:0',r:'胜',c:'世预赛'},{o:'巴西',s:'4:1',r:'胜',c:'世预赛'},{o:'乌拉圭',s:'1:0',r:'胜',c:'世预赛'},{o:'委内瑞拉',s:'3:0',r:'胜',c:'世预赛'}],
 '法国':[{o:'意大利',s:'1:3',r:'负',c:'欧国联'},{o:'比利时',s:'2:0',r:'胜',c:'欧国联'},{o:'以色列',s:'4:0',r:'胜',c:'欧国联'},{o:'希腊',s:'3:0',r:'胜',c:'欧预赛'},{o:'荷兰',s:'2:1',r:'胜',c:'欧预赛'}],
 '巴西':[{o:'阿根廷',s:'1:4',r:'负',c:'世预赛'},{o:'乌拉圭',s:'1:1',r:'平',c:'世预赛'},{o:'哥伦比亚',s:'2:1',r:'胜',c:'世预赛'},{o:'厄瓜多尔',s:'1:0',r:'胜',c:'世预赛'},{o:'巴拉圭',s:'4:0',r:'胜',c:'世预赛'}],
