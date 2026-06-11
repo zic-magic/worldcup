@@ -46,8 +46,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .match-vs{font-size:28px;font-weight:900;font-family:var(--mono);letter-spacing:2px;color:var(--tm)}
 .match-pred{text-align:center;margin-top:6px;padding:6px 10px;border-radius:var(--rs);background:rgba(255,145,0,0.08);border:1px solid rgba(255,145,0,0.2);font-size:12px;color:var(--org);font-weight:600}
 .match-pred .ps{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--gld)}
-.upset-idx{font-size:10px;padding:2px 6px;border-radius:3px;margin-left:4px;font-weight:700}
-.upset-lo{background:rgba(0,200,83,0.15);color:var(--grn)}.upset-md{background:rgba(255,145,0,0.15);color:var(--org)}.upset-hi{background:rgba(255,23,68,0.15);color:var(--red)}
+.upset-idx{font-size:11px;padding:3px 8px;border-radius:4px;margin-left:6px;font-weight:700;display:inline-block}
+.upset-lo{background:rgba(0,200,83,0.12);color:var(--grn);border:1px solid rgba(0,200,83,0.3)}
+.upset-md{background:rgba(255,145,0,0.12);color:var(--org);border:1px solid rgba(255,145,0,0.3)}
+.upset-hi{background:rgba(255,23,68,0.12);color:var(--red);border:1px solid rgba(255,23,68,0.3);animation:upsetPulse 2s infinite}
+@keyframes upsetPulse{0%,100%{opacity:1}50%{opacity:0.7}}
 .match-venue{font-size:11px;color:var(--tm);text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)}
 .st-up{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(41,121,255,0.15);color:var(--blu)}
 .odds-inline{display:flex;gap:8px;font-size:11px;justify-content:center;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid var(--bd)}
@@ -324,9 +327,6 @@ function smartPred(h,a){
   return{home:homeG,away:awayG,upset:upsetLevel,gap:absGap,xgHome:homeXG,xgAway:awayXG};
 }
 
-const GM=RAW.map((r,i)=>{const h=gt(r[3]),a=gt(r[4]);const p=smartPred(h,a);return{id:i+1,date:r[0],time:r[1],group:r[2],home:h,away:a,venue:r[5],note:r[6]||'',pred:p};});
-
-// Real odds
 const ROD={};
 ROD['墨西哥_南非']={h:1.34,d:3.92,a:7.85};ROD['韩国_捷克']={h:2.43,d:2.84,a:2.74};ROD['加拿大_波黑']={h:1.59,d:3.38,a:4.90};
 ROD['美国_巴拉圭']={h:1.87,d:3.02,a:3.80};ROD['卡塔尔_瑞士']={h:5.25,d:3.40,a:1.55};ROD['巴西_摩洛哥']={h:1.55,d:3.45,a:5.15};
@@ -336,6 +336,8 @@ ROD['比利时_埃及']={h:1.46,d:3.65,a:5.85};ROD['西班牙_佛得角']={h:1.0
 ROD['沙特阿拉伯_乌拉圭']={h:8.45,d:4.35,a:1.28};ROD['法国_塞内加尔']={h:1.38,d:3.90,a:6.75};ROD['阿根廷_阿尔及利亚']={h:1.22,d:5.00,a:9.50};
 ROD['伊拉克_挪威']={h:8.90,d:4.25,a:1.28};ROD['奥地利_约旦']={h:1.40,d:3.75,a:6.50};ROD['葡萄牙_刚果(金)']={h:1.14,d:5.70,a:13.00};
 ROD['英格兰_克罗地亚']={h:1.55,d:3.40,a:5.25};ROD['乌兹别克斯坦_哥伦比亚']={h:9.00,d:4.45,a:1.26};ROD['加纳_巴拿马']={h:1.80,d:3.10,a:3.80};
+
+const GM=RAW.map((r,i)=>{const h=gt(r[3]),a=gt(r[4]);const p=smartPred(h,a);return{id:i+1,date:r[0],time:r[1],group:r[2],home:h,away:a,venue:r[5],note:r[6]||'',pred:p};});
 
 const MODS={};
 GM.forEach(m=>{if(!m.home||!m.away)return;const k=m.home.n+'_'+m.away.n;const r=ROD[k];MODS[m.id]=r?{home:r.h,draw:r.d,away:r.a,src:'竞彩官方'}:(()=>{const hr=m.home.rk||50,ar=m.away.rk||50;const hs=Math.max(3,65-hr),as=Math.max(3,65-ar),t=hs+as+18;return{home:Math.min(50,+(1/(hs/t)).toFixed(2)),draw:Math.min(20,+(1/(15/t)).toFixed(2)),away:Math.min(50,+(1/(as/t)).toFixed(2)),src:'模拟'};})();});
@@ -440,7 +442,7 @@ function renderSchedule(search=''){
     f.forEach(m=>{
       if(!m.home||!m.away)return;
       const o=MODS[m.id]||{},cp=getComboPlan(m);
-      const upLabel=m.pred.upset==='hi'?'高爆冷':m.pred.upset==='md'?'中爆冷':'低风险';
+      const upLabel=m.pred.upset==='hi'?'⚠️ 高爆冷':m.pred.upset==='md'?'⚡ 中爆冷':'✅ 低风险';
       const upCls=m.pred.upset==='hi'?'upset-hi':m.pred.upset==='md'?'upset-md':'upset-lo';
       h+=`<div class="match-card"><div class="match-hd"><span class="match-grp">${m.group}组<span class="match-id">#${m.id}</span></span>${m.note?`<span style="font-size:10px;color:var(--gld);">⭐${m.note}</span>`:''}<span class="match-tm">${m.time} ET</span><span class="st-up">未开赛</span></div>
       <div class="match-teams"><div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.n}</div><div class="trank">FIFA #${m.home.rk}</div></div>
