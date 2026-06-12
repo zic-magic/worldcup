@@ -339,6 +339,22 @@ ROD['英格兰_克罗地亚']={h:1.55,d:3.40,a:5.25};ROD['乌兹别克斯坦_哥
 
 const GM=RAW.map((r,i)=>{const h=gt(r[3]),a=gt(r[4]);const p=smartPred(h,a);return{id:i+1,date:r[0],time:r[1],group:r[2],home:h,away:a,venue:r[5],note:r[6]||'',pred:p};});
 
+// ===== ACTUAL RESULTS (filled as matches complete) =====
+const RESULTS={
+  1:{home:2,away:0},
+};
+// Live scores (in-progress matches)
+const LIVE={
+  2:{home:1,away:1},
+};
+// Mark match status
+GM.forEach(m=>{
+  const r=RESULTS[m.id];const l=LIVE[m.id];
+  if(r){m.result=r;m.status='done';const predDir=m.pred.home>m.pred.away?'H':m.pred.home<m.pred.away?'A':'D';const realDir=r.home>r.away?'H':r.home<r.away?'A':'D';m.predHit=predDir===realDir;m.predExact=m.pred.home===r.home&&m.pred.away===r.away;}
+  else if(l){m.liveScore=l;m.status='live';}
+  else{m.status='upcoming';}
+});
+
 const MODS={};
 GM.forEach(m=>{if(!m.home||!m.away)return;const k=m.home.n+'_'+m.away.n;const r=ROD[k];MODS[m.id]=r?{home:r.h,draw:r.d,away:r.a,src:'竞彩官方'}:(()=>{const hr=m.home.rk||50,ar=m.away.rk||50;const hs=Math.max(3,65-hr),as=Math.max(3,65-ar),t=hs+as+18;return{home:Math.min(50,+(1/(hs/t)).toFixed(2)),draw:Math.min(20,+(1/(15/t)).toFixed(2)),away:Math.min(50,+(1/(as/t)).toFixed(2)),src:'模拟'};})();});
 
@@ -416,8 +432,12 @@ function getComboPlan(m){
   return newItems.map(x=>({type:x.type,pick:x.pick,odds:x.odds,pct:Math.round(x.raw/totalRaw*100),note:x.note})).filter(x=>x.pct>0);
 }
 
-// Standings
+// Standings (apply actual results dynamically)
 const GS={};GROUPS.forEach(g=>{GS[g]=Object.entries(TDB).filter(([,v])=>v.g===g).map(([k,v])=>({n:k,...v,pd:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0}));});
+// Inject actual results into standings
+GM.forEach(m=>{if(!m.result)return;const ht=GS[m.group]?.find(t=>t.n===m.home.n);const at=GS[m.group]?.find(t=>t.n===m.away.n);if(!ht||!at)return;ht.pd++;at.pd++;ht.gf+=m.result.home;ht.ga+=m.result.away;at.gf+=m.result.away;at.ga+=m.result.home;ht.gd=ht.gf-ht.ga;at.gd=at.gf-at.ga;if(m.result.home>m.result.away){ht.w++;ht.pts+=3;at.l++;}else if(m.result.home<m.result.away){at.w++;at.pts+=3;ht.l++;}else{ht.d++;at.d++;ht.pts++;at.pts++;}});
+// Re-sort groups
+GROUPS.forEach(g=>{GS[g].sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);});
 
 // Outright odds (real data from sporttery where available, simulated otherwise)
 const OO_BASE={阿根廷:5.50,法国:6.00,巴西:6.50,英格兰:7.00,西班牙:8.00,德国:9.00,荷兰:11.00,葡萄牙:13.00,比利时:17.00,乌拉圭:21.00,克罗地亚:26.00,哥伦比亚:34.00,挪威:34.00,美国:41.00,墨西哥:41.00,日本:51.00,摩洛哥:51.00,塞内加尔:67.00,丹麦:67.00,瑞士:81.00,奥地利:101.00,厄瓜多尔:101.00,加拿大:126.00,埃及:151.00};
@@ -444,13 +464,17 @@ function renderSchedule(search=''){
       const o=MODS[m.id]||{},cp=getComboPlan(m);
       const upLabel=m.pred.upset==='hi'?'⚠️ 高爆冷':m.pred.upset==='md'?'⚡ 中爆冷':'✅ 低风险';
       const upCls=m.pred.upset==='hi'?'upset-hi':m.pred.upset==='md'?'upset-md':'upset-lo';
-      h+=`<div class="match-card"><div class="match-hd"><span class="match-grp">${m.group}组<span class="match-id">#${m.id}</span></span>${m.note?`<span style="font-size:10px;color:var(--gld);">⭐${m.note}</span>`:''}<span class="match-tm">${m.time} ET</span><span class="st-up">未开赛</span></div>
+      const isDone=m.status==='done';const isLive=m.status==='live';const hit=m.predHit;const exact=m.predExact;
+      const statusHTML=isDone?`<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(0,200,83,0.15);color:var(--grn);">已结束</span>`:isLive?`<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(255,23,68,0.15);color:var(--red);animation:pulse-dot 1.5s infinite;">🔴 比赛中</span>`:`<span class="st-up">未开赛</span>`;
+      const predTag=isDone?(exact?`<span style="color:var(--grn);font-weight:700;font-size:10px;">🎯 完全命中</span>`:hit?`<span style="color:var(--grn);font-weight:700;font-size:10px;">✅ 方向正确</span>`:`<span style="color:var(--red);font-weight:700;font-size:10px;">❌ 预测失败</span>`):'';
+      h+=`<div class="match-card"><div class="match-hd"><span class="match-grp">${m.group}组<span class="match-id">#${m.id}</span></span>${m.note?`<span style="font-size:10px;color:var(--gld);">⭐${m.note}</span>`:''}<span class="match-tm">${m.time} ET</span>${statusHTML}</div>
       <div class="match-teams"><div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.n}</div><div class="trank">FIFA #${m.home.rk}</div></div>
-      <div class="match-vs">VS</div>
+      <div class="match-vs">${isDone?`<span style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--gld);">${m.result.home}:${m.result.away}</span>`:isLive?`<span style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--red);">${m.liveScore.home}:${m.liveScore.away}</span>`:'VS'}</div>
       <div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.away.n}','${m.home.n}')">${m.away.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.away.n}','${m.home.n}')">${m.away.n}</div><div class="trank">FIFA #${m.away.rk}</div></div></div>
-      <div class="match-pred">🔮 AI预测：<span class="ps">${m.pred.home}:${m.pred.away}</span><span class="upset-idx ${upCls}">${upLabel}</span><button class="fbtn" style="padding:2px 8px;font-size:10px;margin-left:6px;" onclick="event.stopPropagation();showReason(${m.id})">📊 预测理由</button></div>
+      <div class="match-pred">🔮 AI预测：<span class="ps">${m.pred.home}:${m.pred.away}</span><span class="upset-idx ${upCls}">${upLabel}</span>${predTag}<button class="fbtn" style="padding:2px 8px;font-size:10px;margin-left:6px;" onclick="event.stopPropagation();showReason(${m.id})">📊 预测理由</button></div>
+      ${isLive?`<div class="match-pred" style="color:var(--red);background:rgba(255,23,68,0.06);border-color:rgba(255,23,68,0.2);">🔴 实时比分：<span class="ps" style="color:var(--red);">${m.liveScore.home}:${m.liveScore.away}</span> &nbsp; <span style="font-size:10px;">进行中...</span></div>`:''}
       <div class="odds-inline"><span style="color:var(--tm);">💰</span><span class="oi">主${o.home||'-'}</span><span class="oi">平${o.draw||'-'}</span><span class="oi">客${o.away||'-'}</span><span class="odds-src" style="color:${o.src==='竞彩官方'?'var(--grn)':'var(--tm)'};">${o.src||''}</span></div>`;
-      if(cp){
+      if(cp&&!isDone&&!isLive){
         h+=`<div class="combo-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arr').textContent=this.nextElementSibling.classList.contains('open')?'▼':'▶'"><span class="arr">▶</span> 📊 展开投注方案（预测驱动 · Kelly分配）</div>
         <div class="combo-content"><div style="display:grid;grid-template-columns:auto auto 1fr auto auto;gap:4px 8px;align-items:center;font-size:10px;padding:4px 0;border-bottom:1px solid var(--bd);color:var(--tm);"><span>类型</span><span></span><span>选项</span><span>赔率</span><span>比例</span></div>
         ${cp.map(x=>`<div class="combo-row"><span class="c-type"><span class="badge ${x.type==='胜平负'?'bg-g':x.type==='让球胜平负'?'bg-b':x.type==='比分'?'bg-r':'bg-gd'}">${x.type}</span></span><span style="font-size:9px;color:var(--tm);">${x.note}</span><span class="c-pick">${x.pick}</span><span class="c-odds">@${x.odds}</span><span class="c-pct">${x.pct}%</span></div>`).join('')}
