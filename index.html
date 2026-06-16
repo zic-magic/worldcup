@@ -162,6 +162,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div id="groupStageContent">
     <div class="fbar"><input type="text" class="srch" id="scheduleSearch" placeholder="🔍 搜索球队或小组..."></div>
     <div id="scheduleByDate"></div>
+    <div id="predAccuracy" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
   </div>
   <div id="knockoutStageContent" style="display:none;">
     <div class="koplaceholder"><h3>🏆 淘汰赛阶段</h3><p>小组赛结束后确定对阵名单</p>
@@ -475,7 +476,7 @@ function renderSchedule(search=''){
       <div class="match-pred">🔮 AI预测：<span class="ps">${m.pred.home}:${m.pred.away}</span><span class="upset-idx ${upCls}">${upLabel}</span>${predTag}<button class="fbtn" style="padding:2px 8px;font-size:10px;margin-left:6px;" onclick="event.stopPropagation();showReason(${m.id})">📊 预测理由</button></div>
       ${isLive?`<div class="match-pred" style="color:var(--red);background:rgba(255,23,68,0.06);border-color:rgba(255,23,68,0.2);">🔴 实时比分：<span class="ps" style="color:var(--red);">${m.liveScore.home}:${m.liveScore.away}</span> &nbsp; <span style="font-size:10px;">进行中...</span></div>`:''}
       <div class="odds-inline"><span style="color:var(--tm);">💰</span><span class="oi">主${o.home||'-'}</span><span class="oi">平${o.draw||'-'}</span><span class="oi">客${o.away||'-'}</span><span class="odds-src" style="color:${o.src==='竞彩官方'?'var(--grn)':'var(--tm)'};">${o.src||''}</span></div>`;
-      if(cp&&!isDone&&!isLive){
+      if(cp&&!isLive){
         h+=`<div class="combo-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arr').textContent=this.nextElementSibling.classList.contains('open')?'▼':'▶'"><span class="arr">▶</span> 📊 展开投注方案（预测驱动 · Kelly分配）</div>
         <div class="combo-content"><div style="display:grid;grid-template-columns:auto auto 1fr auto auto;gap:4px 8px;align-items:center;font-size:10px;padding:4px 0;border-bottom:1px solid var(--bd);color:var(--tm);"><span>类型</span><span></span><span>选项</span><span>赔率</span><span>比例</span></div>
         ${cp.map(x=>`<div class="combo-row"><span class="c-type"><span class="badge ${x.type==='胜平负'?'bg-g':x.type==='让球胜平负'?'bg-b':x.type==='比分'?'bg-r':'bg-gd'}">${x.type}</span></span><span style="font-size:9px;color:var(--tm);">${x.note}</span><span class="c-pick">${x.pick}</span><span class="c-odds">@${x.odds}</span><span class="c-pct">${x.pct}%</span></div>`).join('')}
@@ -622,6 +623,22 @@ function swSec(id){document.querySelectorAll('.sec').forEach(s=>s.classList.remo
 
 // ===== INIT =====
 function init(){
+  // Accuracy summary
+  const done=GM.filter(m=>m.status==='done');
+  const correct=done.filter(m=>m.predHit).length;
+  const exact=done.filter(m=>m.predExact).length;
+  const total=done.length;
+  if(total>0){
+    document.getElementById('predAccuracy').innerHTML=`
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;text-align:center;flex:1;min-width:120px;">
+        <div style="font-size:11px;color:var(--tm);">已完赛</div><div style="font-size:22px;font-weight:900;color:var(--t);">${total}场</div></div>
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;text-align:center;flex:1;min-width:120px;">
+        <div style="font-size:11px;color:var(--tm);">方向正确</div><div style="font-size:22px;font-weight:900;color:var(--grn);">${correct}场</div></div>
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;text-align:center;flex:1;min-width:120px;">
+        <div style="font-size:11px;color:var(--tm);">完全命中</div><div style="font-size:22px;font-weight:900;color:var(--gld);">${exact}场</div></div>
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:10px 16px;text-align:center;flex:1;min-width:120px;">
+        <div style="font-size:11px;color:var(--tm);">准确率</div><div style="font-size:22px;font-weight:900;color:${correct/total>=0.6?'var(--grn)':correct/total>=0.4?'var(--org)':'var(--red)'};">${Math.round(correct/total*100)}%</div></div>`;
+  }
   renderSchedule();renderSGF();renderStandings();renderOutright();updateBetTab();
   document.getElementById('tournamentScorers').innerHTML=TSC.map(s=>`<div class="scard"><span class="sr">${s.r}</span><span class="si"><div class="sn">${s.f} ${s.n} <span style="font-size:10px;color:var(--tm);">${s.t}</span></div><div class="sd">预测：${s.p}</div></span><span class="sg">${s.g}</span></div>`).join('');
   document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>swSec(t.dataset.section)));
