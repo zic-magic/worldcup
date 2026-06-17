@@ -162,7 +162,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div id="groupStageContent">
     <div class="fbar"><input type="text" class="srch" id="scheduleSearch" placeholder="🔍 搜索球队或小组..."></div>
     <div id="scheduleByDate"></div>
-    <div id="predAccuracy" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
+    <div id="predAccuracy" style="position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;gap:8px;padding:8px 16px;background:rgba(10,14,20,0.95);border-top:1px solid var(--bd);backdrop-filter:blur(10px);justify-content:center;flex-wrap:wrap;"></div>
   </div>
   <div id="knockoutStageContent" style="display:none;">
     <div class="koplaceholder"><h3>🏆 淘汰赛阶段</h3><p>小组赛结束后确定对阵名单</p>
@@ -342,7 +342,7 @@ const GM=RAW.map((r,i)=>{const h=gt(r[3]),a=gt(r[4]);const p=smartPred(h,a);retu
 
 // ===== LOCK completed match predictions =====
 const LOCKED_PRED={
-  7:{home:0,away:1},11:{home:1,away:0},
+  7:{home:0,away:1},
 };
 // Override GM predictions with locked values for completed matches
 GM.forEach(m=>{if(LOCKED_PRED[m.id])m.pred=LOCKED_PRED[m.id];});
