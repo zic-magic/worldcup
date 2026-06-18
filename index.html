@@ -160,7 +160,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="stage-btn" data-stage="knockout">🏆 淘汰赛</button>
   </div>
   <div id="groupStageContent">
-    <div class="fbar"><input type="text" class="srch" id="scheduleSearch" placeholder="🔍 搜索球队或小组..."></div>
+    <div class="fbar"><input type="text" class="srch" id="scheduleSearch" placeholder="🔍 搜索球队或小组...">
+    <button class="fbtn" id="toggleDone" onclick="toggleDoneMatches()" style="margin-left:auto;">📋 已完赛(24) ∧</button></div>
     <div id="scheduleByDate"></div>
     <div id="predAccuracy" style="position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;gap:8px;padding:8px 16px;background:rgba(10,14,20,0.95);border-top:1px solid var(--bd);backdrop-filter:blur(10px);justify-content:center;flex-wrap:wrap;"></div>
   </div>
@@ -348,6 +349,7 @@ const RESULTS={
   9:{home:7,away:1},10:{home:2,away:2},11:{home:1,away:0},12:{home:5,away:1},
   13:{home:0,away:0},14:{home:1,away:1},15:{home:1,away:1},16:{home:2,away:2},
   17:{home:3,away:1},18:{home:3,away:0},19:{home:1,away:4},20:{home:3,away:1},
+  21:{home:1,away:1},22:{home:4,away:2},23:{home:1,away:0},24:{home:1,away:3},
 };
 // Live scores (in-progress matches)
 const LIVE={};
@@ -471,7 +473,7 @@ function renderSchedule(search=''){
       const isDone=m.status==='done';const isLive=m.status==='live';const hit=m.predHit;const exact=m.predExact;
       const statusHTML=isDone?`<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(0,200,83,0.15);color:var(--grn);">已结束</span>`:isLive?`<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(255,23,68,0.15);color:var(--red);animation:pulse-dot 1.5s infinite;">🔴 比赛中</span>`:`<span class="st-up">未开赛</span>`;
       const predTag=isDone?(exact?`<span style="color:var(--grn);font-weight:700;font-size:10px;">🎯 完全命中</span>`:hit?`<span style="color:var(--grn);font-weight:700;font-size:10px;">✅ 方向正确</span>`:`<span style="color:var(--red);font-weight:700;font-size:10px;">❌ 预测失败</span>`):'';
-      h+=`<div class="match-card"><div class="match-hd"><span class="match-grp">${m.group}组<span class="match-id">#${m.id}</span></span>${m.note?`<span style="font-size:10px;color:var(--gld);">⭐${m.note}</span>`:''}<span class="match-tm">${m.time} ET</span>${statusHTML}</div>
+      h+=`<div class="match-card" data-done="${isDone?'1':'0'}"><div class="match-hd"><span class="match-grp">${m.group}组<span class="match-id">#${m.id}</span></span>${m.note?`<span style="font-size:10px;color:var(--gld);">⭐${m.note}</span>`:''}<span class="match-tm">${m.time} ET</span>${statusHTML}</div>
       <div class="match-teams"><div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.home.n}','${m.away.n}')">${m.home.n}</div><div class="trank">FIFA #${m.home.rk}</div></div>
       <div class="match-vs">${isDone?`<span style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--gld);">${m.result.home}:${m.result.away}</span>`:isLive?`<span style="font-size:28px;font-weight:900;font-family:var(--mono);color:var(--red);">${m.liveScore.home}:${m.liveScore.away}</span>`:'VS'}</div>
       <div class="tcol"><div class="tflag" onclick="event.stopPropagation();openModal('${m.away.n}','${m.home.n}')">${m.away.f}</div><div class="tlink" onclick="event.stopPropagation();openModal('${m.away.n}','${m.home.n}')">${m.away.n}</div><div class="trank">FIFA #${m.away.rk}</div></div></div>
@@ -589,6 +591,13 @@ function showReason(mid){const m=GM.find(x=>x.id===mid);if(!m)return;const p=m.p
   const msg=`📊 预测分析报告\n\n⚽ ${m.home.n} vs ${m.away.n}\n📈 预测比分：${p.home}:${p.away}\n🏷 爆冷等级：${p.upset==='hi'?'高':p.upset==='md'?'中':'低'}\n\n📋 分析依据：\n• FIFA排名差：${absGap}位 (${m.home.n}#${hr} vs ${m.away.n}#${ar})\n• 实力优势方：${stronger}\n• ${oddsInfo}\n• 进球预期：${p.home+p.away}球（${p.home+p.away>2?'偏大':'正常'}范围）\n\n🔍 ${upsetHint}\n📌 投注建议：结合Kelly模型分配资金，关注胜平负主推项\n\n⚠️ AI分析仅供娱乐，实际赛果以比赛为准`;
   alert(msg);}
 function isStarted(m){if(!m)return true;const dt=new Date(m.date+'T'+m.time+':00');return new Date()>=dt;}
+function toggleDoneMatches(){
+  const cards=document.querySelectorAll('.match-card');let hidden=false;
+  cards.forEach(c=>{if(c.dataset.done==='1'){c.style.display=c.style.display==='none'?'':'none';if(c.style.display==='none')hidden=true;}});
+  const btn=document.getElementById('toggleDone');
+  const done=GM.filter(m=>m.status==='done').length;
+  btn.innerHTML=hidden?`📋 已完赛(${done}) ∨`:`📋 已完赛(${done}) ∧`;
+}
 function confirmBet(mid,type,label,odds){
   const m=GM.find(x=>x.id===mid);if(!m)return;
   if(isStarted(m)){toast('比赛已开赛，无法投注','err');return;}
